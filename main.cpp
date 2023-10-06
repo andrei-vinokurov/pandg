@@ -23,12 +23,13 @@ public:
 
     void Adding(wxCommandEvent& event);
     void EditDelete(wxCommandEvent& event);
-    void DeletingOne(wxCommandEvent& event);
-    void Editing(wxCommandEvent& event);
+    //void DeletingOne(wxCommandEvent& event);
+    //void Editing(wxCommandEvent& event);
     void Canceling(wxCommandEvent& event);
-    void Deleting(wxCommandEvent& event);
+    //void Deleting(wxCommandEvent& event);
     float TotalCost();
-    int VS (wxVector<float*> vec);
+    //int VS (wxVector<float*> vec);
+
 
     wxSpinCtrl *spinctrl;
 
@@ -43,7 +44,7 @@ private:
     wxTextCtrl *textctrl3;
     wxStaticText *text4;
     wxStaticText *text5;
-    wxString *str;
+    //wxString *str;
     
     //wxButton *button5;
     int count = 0;
@@ -127,11 +128,11 @@ LeftPanel::LeftPanel(wxPanel *parent) : wxPanel (parent, wxID_ANY, wxDefaultPosi
 
     button1->Bind(wxEVT_BUTTON, &LeftPanel::Adding, this);
     button2->Bind(wxEVT_BUTTON, &LeftPanel::EditDelete, this);
-    button3->Bind(wxEVT_BUTTON, &LeftPanel::Editing, this);
-    button4->Bind(wxEVT_BUTTON, &LeftPanel::DeletingOne, this);
+    //button3->Bind(wxEVT_BUTTON, &LeftPanel::Editing, this);
+    //button4->Bind(wxEVT_BUTTON, &LeftPanel::DeletingOne, this);
     button5->Bind(wxEVT_BUTTON, &LeftPanel::Canceling, this);
 
-    button9->Bind(wxEVT_BUTTON, &LeftPanel::Deleting, this);
+    //button9->Bind(wxEVT_BUTTON, &LeftPanel::Deleting, this);
 }
 
 
@@ -193,14 +194,16 @@ void LeftPanel::Adding (wxCommandEvent& event)
     double quantity;
     textctrl3->GetValue().ToDouble(&quantity);
     listCtrl->SetItem (count, 4, wxString::Format(wxT("%.2f"), price*quantity), -1);
-    float total = price*quantity;
-    vector.push_back(&total);
+    float *total = new float (price*quantity); //память!!!!!!!!!!!!!!!!!!
+    vector.push_back(total);
     listCtrltotal->SetItemText (0, wxString::Format(wxT("%.2f"), TotalCost()));
 
     //*str = wxString::Format(wxT("%.2f"), TotalCost());
 
-    wxStaticText *text6 = new wxStaticText(this, wxID_ANY, text5->GetLabelText(), wxPoint (500, 310), wxSize (160, 20), wxALIGN_CENTRE_HORIZONTAL);
-
+    //!!!!!!!!!!wxStaticText *text6 = new wxStaticText(this, wxID_ANY, text5->GetLabelText(), wxPoint (500, 310), wxSize (160, 20), wxALIGN_CENTRE_HORIZONTAL);
+    textctrl1->SetValue("");
+    textctrl2->SetValue("");
+    textctrl3->SetValue("");
     count++;
     }
     else
@@ -220,6 +223,7 @@ float LeftPanel::TotalCost()
     return cost;
 }
 
+
 void LeftPanel::EditDelete(wxCommandEvent& event)
 {
     if(vector.empty())
@@ -235,7 +239,7 @@ void LeftPanel::EditDelete(wxCommandEvent& event)
     }
 }
 
-void LeftPanel::Editing(wxCommandEvent& event)
+/*void LeftPanel::Editing(wxCommandEvent& event)
 {
     spinctrl->SetValue (99);
     //FindWindow (ID_Panel)->Show(true);
@@ -256,7 +260,7 @@ void LeftPanel::DeletingOne(wxCommandEvent& event)
     //text4->Show(true);
     //spinctrl->Show(true);
     //button5->Show(true);
-}
+}*/
 
 void LeftPanel::Canceling(wxCommandEvent& event)
 {
@@ -264,7 +268,7 @@ void LeftPanel::Canceling(wxCommandEvent& event)
     FindWindow (ID_Panel1)->Show(true);
 }
 
-void LeftPanel::Deleting (wxCommandEvent& event)
+/*void LeftPanel::Deleting (wxCommandEvent& event)
 {
     listCtrl->DeleteAllItems ();
     vector.clear();
@@ -274,4 +278,4 @@ void LeftPanel::Deleting (wxCommandEvent& event)
 int LeftPanel::VS (wxVector<float*> vec)
 {
     return vec.size();
-}
+}*/
