@@ -26,7 +26,7 @@ public:
     //void DeletingOne(wxCommandEvent& event);
     //void Editing(wxCommandEvent& event);
     void Canceling(wxCommandEvent& event);
-    //void Deleting(wxCommandEvent& event);
+    void Deleting(wxCommandEvent& event);
     float TotalCost();
     //int VS (wxVector<float*> vec);
 
@@ -124,7 +124,7 @@ LeftPanel::LeftPanel(wxPanel *parent) : wxPanel (parent, wxID_ANY, wxDefaultPosi
 
     listCtrltotal = new wxListCtrl (this, wxID_ANY, wxPoint (600,300), wxSize (110, 40), wxLC_REPORT);
     listCtrltotal->AppendColumn ("total cost", wxLIST_FORMAT_CENTER, 110);
-    listCtrltotal->InsertItem (0, "");
+    listCtrltotal->InsertItem (0, "0");
 
     button1->Bind(wxEVT_BUTTON, &LeftPanel::Adding, this);
     button2->Bind(wxEVT_BUTTON, &LeftPanel::EditDelete, this);
@@ -132,7 +132,7 @@ LeftPanel::LeftPanel(wxPanel *parent) : wxPanel (parent, wxID_ANY, wxDefaultPosi
     //button4->Bind(wxEVT_BUTTON, &LeftPanel::DeletingOne, this);
     button5->Bind(wxEVT_BUTTON, &LeftPanel::Canceling, this);
 
-    //button9->Bind(wxEVT_BUTTON, &LeftPanel::Deleting, this);
+    button9->Bind(wxEVT_BUTTON, &LeftPanel::Deleting, this);
 }
 
 
@@ -268,14 +268,20 @@ void LeftPanel::Canceling(wxCommandEvent& event)
     FindWindow (ID_Panel1)->Show(true);
 }
 
-/*void LeftPanel::Deleting (wxCommandEvent& event)
+void LeftPanel::Deleting (wxCommandEvent& event)
 {
     listCtrl->DeleteAllItems ();
+    for(int i = 0; i < vector.size(); i++)
+    {
+        delete vector[i];
+        vector[i] = 0;
+    }
     vector.clear();
     count = 0;
+    listCtrltotal->SetItemText (0, "0");
 }
 
-int LeftPanel::VS (wxVector<float*> vec)
+/*int LeftPanel::VS (wxVector<float*> vec)
 {
     return vec.size();
 }*/
