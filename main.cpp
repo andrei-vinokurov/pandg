@@ -216,7 +216,7 @@ void LeftPanel::Adding (wxCommandEvent& event)
 float LeftPanel::TotalCost()
 {
     float cost = 0;
-    for(int i = 0; i < vector.size(); i++)
+    for(unsigned int i = 0; i < vector.size(); ++i)
     {
         cost += *vector[i];
     }
@@ -271,7 +271,7 @@ void LeftPanel::Canceling(wxCommandEvent& event)
 void LeftPanel::Deleting (wxCommandEvent& event)
 {
     listCtrl->DeleteAllItems ();
-    for(int i = 0; i < vector.size(); i++)
+    for(unsigned int i = 0; i < vector.size(); ++i)
     {
         delete vector[i];
         vector[i] = 0;
