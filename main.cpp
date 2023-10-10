@@ -23,7 +23,7 @@ public:
 
     void Adding(wxCommandEvent& event);
     void EditDelete(wxCommandEvent& event);
-    //void DeletingOne(wxCommandEvent& event);
+    void DeletingOne(wxCommandEvent& event);
     //void Editing(wxCommandEvent& event);
     void Canceling(wxCommandEvent& event);
     void Deleting(wxCommandEvent& event);
@@ -129,7 +129,7 @@ LeftPanel::LeftPanel(wxPanel *parent) : wxPanel (parent, wxID_ANY, wxDefaultPosi
     button1->Bind(wxEVT_BUTTON, &LeftPanel::Adding, this);
     button2->Bind(wxEVT_BUTTON, &LeftPanel::EditDelete, this);
     //button3->Bind(wxEVT_BUTTON, &LeftPanel::Editing, this);
-    //button4->Bind(wxEVT_BUTTON, &LeftPanel::DeletingOne, this);
+    button4->Bind(wxEVT_BUTTON, &LeftPanel::DeletingOne, this);
     button5->Bind(wxEVT_BUTTON, &LeftPanel::Canceling, this);
 
     button9->Bind(wxEVT_BUTTON, &LeftPanel::Deleting, this);
@@ -247,20 +247,42 @@ void LeftPanel::EditDelete(wxCommandEvent& event)
     //text4->Show(true);
     //spinctrl->Show(true);
     //button5->Show(true);
-}
+}*/
 
 void LeftPanel::DeletingOne(wxCommandEvent& event)
 {
-    
+    if(vector.empty())
+    {
+        wxMessageBox("The list of product is empty.",
+                 "Empty list", wxOK | wxICON_INFORMATION);
+    }
+    else
+    {
+        if (vector.size() > 3)
+        {
+            listCtrl->DeleteItem(3);
+            delete vector[3];
+            vector[3] = 0;
+            vector.erase((vector.begin()-(3-1)));
+        }
+        else
+        {
+            wxMessageBox("This name is not in the list.",
+                 "Name missing", wxOK | wxICON_INFORMATION);
+            
+        }
+    }
+
+
     //text4->SetLabel ("Andrei Vinokurov");
-    spinctrl->SetValue (50);
+    //spinctrl->SetValue (50);
 
     //FindWindow (ID_Panel)->Show(true);
     //childPanel->Show(true);
     //text4->Show(true);
     //spinctrl->Show(true);
     //button5->Show(true);
-}*/
+}
 
 void LeftPanel::Canceling(wxCommandEvent& event)
 {
