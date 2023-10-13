@@ -29,6 +29,7 @@ public:
     void Deleting(wxCommandEvent& event);
     float TotalCost();
     //int VS (wxVector<float*> vec);
+    void ChangeIdOfListCtrl(unsigned int k);
 
 
     wxSpinCtrl *spinctrl;
@@ -47,7 +48,7 @@ private:
     //wxString *str;
     
     //wxButton *button5;
-    int count = 0;
+    unsigned int count = 0;
 
     float *m_value1 = 0;
     float *m_value2 = 0;
@@ -261,9 +262,14 @@ void LeftPanel::DeletingOne(wxCommandEvent& event)
         if (vector.size() > 3)
         {
             listCtrl->DeleteItem(3);
-            delete vector[3];
+            /*for (int i = 3; i < listCtrl->GetItemCount(); i++)
+            {
+                //listCtrl->SetItemCount(i);
+            }*/
+            //listCtrl->RefreshItems(0, listCtrl->GetItemCount());
+            /*delete vector[3];
             vector[3] = 0;
-            vector.erase((vector.begin()-(3-1)));
+            vector.erase((vector.begin()-(3-1)));*/
         }
         else
         {
@@ -307,3 +313,11 @@ void LeftPanel::Deleting (wxCommandEvent& event)
 {
     return vec.size();
 }*/
+
+void LeftPanel::ChangeIdOfListCtrl(unsigned int k)
+{
+    for (unsigned int i = k; i < listCtrl->GetItemCount(); i++)
+    {
+        listCtrl->GetId();
+    }
+}
