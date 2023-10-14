@@ -47,7 +47,7 @@ private:
     //wxString *str;
     
     //wxButton *button5;
-    int count = 0;
+    static unsigned int count;
 
     float *m_value1 = 0;
     float *m_value2 = 0;
@@ -83,6 +83,8 @@ bool MyApp::OnInit()
     frame->Show(true);
     return true;
 }
+
+unsigned int LeftPanel::count = 0;
 
 LeftPanel::LeftPanel(wxPanel *parent) : wxPanel (parent, wxID_ANY, wxDefaultPosition, wxSize (710, 340), wxBORDER_SUNKEN)
 {
@@ -260,6 +262,7 @@ void LeftPanel::DeletingOne(wxCommandEvent& event)
     {
         if (vector.size() > 3)
         {
+            count = listCtrl->GetItemCount()+1;
             listCtrl->DeleteItem(3);
             delete vector[3];
             vector[3] = 0;
