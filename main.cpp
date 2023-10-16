@@ -27,9 +27,10 @@ public:
     void Editing(wxCommandEvent& event);
     void Canceling(wxCommandEvent& event);
     void Deleting(wxCommandEvent& event);
+    static unsigned int TotalCount();
     float TotalCost();
     //int VS (wxVector<float*> vec);
-    void ChangeIdOfListCtrl(unsigned int k);
+    //void ChangeIdOfListCtrl(unsigned int k);
 
 
     wxSpinCtrl *spinctrl;
@@ -49,6 +50,7 @@ private:
     
     //wxButton *button5;
     static unsigned int count;
+    static unsigned int countDelete;
 
     float *m_value1 = 0;
     float *m_value2 = 0;
@@ -56,6 +58,8 @@ private:
 
 };
 
+unsigned int LeftPanel::count = 0;
+unsigned int LeftPanel::countDelete = 0;
 
 class MyFrame : public wxFrame
 {
@@ -187,16 +191,16 @@ void MyFrame::OnAbout(wxCommandEvent& event)
 void LeftPanel::Adding (wxCommandEvent& event)
 {
     if (!textctrl1->IsEmpty() && !textctrl2->IsEmpty() && !textctrl3->IsEmpty()){      
-    listCtrl->InsertItem (count, "");
-    listCtrl->SetItem (count, 0, wxString::Format(wxT("%d"), count+1), -1);
-    listCtrl->SetItem (count, 1, textctrl1->GetValue(), -1);
-    listCtrl->SetItem (count, 2, textctrl2->GetValue(), -1);
+    listCtrl->InsertItem (TotalCount(), "");
+    listCtrl->SetItem (TotalCount(), 0, wxString::Format(wxT("%d"), TotalCount()+1), -1);
+    listCtrl->SetItem (TotalCount(), 1, textctrl1->GetValue(), -1);
+    listCtrl->SetItem (TotalCount(), 2, textctrl2->GetValue(), -1);
     double price;
     textctrl2->GetValue().ToDouble(&price);
-    listCtrl->SetItem (count, 3, textctrl3->GetValue(), -1);
+    listCtrl->SetItem (TotalCount(), 3, textctrl3->GetValue(), -1);
     double quantity;
     textctrl3->GetValue().ToDouble(&quantity);
-    listCtrl->SetItem (count, 4, wxString::Format(wxT("%.2f"), price*quantity), -1);
+    listCtrl->SetItem (TotalCount(), 4, wxString::Format(wxT("%.2f"), price*quantity), -1);
     float *total = new float (price*quantity); //память!!!!!!!!!!!!!!!!!!
     vector.push_back(total);
     listCtrltotal->SetItemText (0, wxString::Format(wxT("%.2f"), TotalCost()));
@@ -214,6 +218,11 @@ void LeftPanel::Adding (wxCommandEvent& event)
         wxMessageBox("The name of product, price or quantity is not correct.",
                  "Error", wxOK | wxICON_INFORMATION);
     }
+}
+
+unsigned int LeftPanel::TotalCount()
+{
+    return (count-countDelete);
 }
 
 float LeftPanel::TotalCost()
@@ -267,14 +276,13 @@ void LeftPanel::DeletingOne(wxCommandEvent& event)
         {
             count = listCtrl->GetItemCount()+1;
             listCtrl->DeleteItem(3);
-            /*for (int i = 3; i < listCtrl->GetItemCount(); i++)
+            countDelete++;
+            for (unsigned int i = 3; i < TotalCount(); i++)
             {
-                //listCtrl->SetItemCount(i);
-            }*/
-            //listCtrl->RefreshItems(0, listCtrl->GetItemCount());
-            /*delete vector[3];
-            vector[3] = 0;
-            vector.erase((vector.begin()-(3-1)));*/
+                listCtrl->SetItem (i, 0, wxString::Format(wxT("%d"), i+1), -1);
+            }
+            listCtrltotal->SetItemText (0, wxString::Format(wxT("%.2f"), (TotalCost()-*vector[3])));
+
         }
         else
         {
@@ -311,6 +319,7 @@ void LeftPanel::Deleting (wxCommandEvent& event)
     }
     vector.clear();
     count = 0;
+    countDelete = 0;
     listCtrltotal->SetItemText (0, "0");
 }
 
@@ -319,10 +328,10 @@ void LeftPanel::Deleting (wxCommandEvent& event)
     return vec.size();
 }*/
 
-void LeftPanel::ChangeIdOfListCtrl(unsigned int k)
+/*void LeftPanel::ChangeIdOfListCtrl(unsigned int k)
 {
     for (unsigned int i = k; i < listCtrl->GetItemCount(); i++)
     {
         listCtrl->GetId();
     }
-}
+}*/
