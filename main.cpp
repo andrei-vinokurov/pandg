@@ -89,6 +89,8 @@ bool MyApp::OnInit()
     return true;
 }
 
+unsigned int LeftPanel::count = 0;
+
 LeftPanel::LeftPanel(wxPanel *parent) : wxPanel (parent, wxID_ANY, wxDefaultPosition, wxSize (710, 340), wxBORDER_SUNKEN)
 {
     wxStaticText *text1 = new wxStaticText(this, wxID_ANY, "Enter a name of product", wxPoint (0,0), wxSize (200, 20));
@@ -270,6 +272,7 @@ void LeftPanel::DeletingOne(wxCommandEvent& event)
     {
         if (vector.size() > 3)
         {
+            count = listCtrl->GetItemCount()+1;
             listCtrl->DeleteItem(3);
             countDelete++;
             for (unsigned int i = 3; i < TotalCount(); i++)
