@@ -24,7 +24,7 @@ public:
     void Adding(wxCommandEvent& event);
     void EditDelete(wxCommandEvent& event);
     void DeletingOne(wxCommandEvent& event);
-    //void Editing(wxCommandEvent& event);
+    void Editing(wxCommandEvent& event);
     void Canceling(wxCommandEvent& event);
     void Deleting(wxCommandEvent& event);
     float TotalCost();
@@ -131,7 +131,7 @@ LeftPanel::LeftPanel(wxPanel *parent) : wxPanel (parent, wxID_ANY, wxDefaultPosi
 
     button1->Bind(wxEVT_BUTTON, &LeftPanel::Adding, this);
     button2->Bind(wxEVT_BUTTON, &LeftPanel::EditDelete, this);
-    //button3->Bind(wxEVT_BUTTON, &LeftPanel::Editing, this);
+    button3->Bind(wxEVT_BUTTON, &LeftPanel::Editing, this);
     button4->Bind(wxEVT_BUTTON, &LeftPanel::DeletingOne, this);
     button5->Bind(wxEVT_BUTTON, &LeftPanel::Canceling, this);
 
@@ -242,15 +242,17 @@ void LeftPanel::EditDelete(wxCommandEvent& event)
     }
 }
 
-/*void LeftPanel::Editing(wxCommandEvent& event)
+void LeftPanel::Editing(wxCommandEvent& event)
 {
-    spinctrl->SetValue (99);
+    listCtrl->SetItem (3, 1, "lemon", -1);
+    
+    //spinctrl->SetValue (99);
     //FindWindow (ID_Panel)->Show(true);
     //childPanel->Show(true);
     //text4->Show(true);
     //spinctrl->Show(true);
     //button5->Show(true);
-}*/
+}
 
 void LeftPanel::DeletingOne(wxCommandEvent& event)
 {
