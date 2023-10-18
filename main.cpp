@@ -32,8 +32,10 @@ public:
     //int VS (wxVector<float*> vec);
     //void ChangeIdOfListCtrl(unsigned int k);
 
+    int ValueSpinCtrl();
 
-    wxSpinCtrl *spinctrl;
+
+    
 
 private:
 
@@ -54,7 +56,9 @@ private:
 
     float *m_value1 = 0;
     float *m_value2 = 0;
-    wxVector<float*> vector;    
+    wxVector<float*> vector;   
+
+    wxSpinCtrl *spinctrl; 
 
 };
 
@@ -113,6 +117,7 @@ LeftPanel::LeftPanel(wxPanel *parent) : wxPanel (parent, wxID_ANY, wxDefaultPosi
 
     wxStaticText *text4 = new wxStaticText(childPanel, wxID_ANY, "Select list number", wxPoint (20, 20), wxSize (160, 20), wxALIGN_CENTRE_HORIZONTAL);  //wxPoint (20,210), wxSize (160, 20)
     wxSpinCtrl *spinctrl = new wxSpinCtrl(childPanel, wxID_ANY, "", wxPoint (70, 50), wxSize (60, 20), wxSP_ARROW_KEYS | wxALIGN_CENTRE_HORIZONTAL);  //wxPoint (70,230), wxSize (60, 20)
+    //spinctrl->SetRange(0, vector.size());
     //spinctrl->SetValidator();
     wxButton *button3 = new wxButton (childPanel, wxID_ANY, "Edit", wxPoint (20, 90), wxSize (50, 20));  //wxPoint (65,250), wxSize (70, 20)
     wxButton *button4 = new wxButton (childPanel, wxID_ANY, "Delete", wxPoint (75, 90), wxSize (50, 20)); 
@@ -270,17 +275,19 @@ void LeftPanel::DeletingOne(wxCommandEvent& event)
     }
     else
     {
-        if (vector.size() > 3)
+        if (vector.size() > ValueSpinCtrl())    //spinctrl->GetValue()
         {
             //count = listCtrl->GetItemCount()+1;
-            listCtrl->DeleteItem(3);
-            countDelete++;
+            listCtrl->DeleteItem(ValueSpinCtrl());
+            /*countDelete++;
             for (unsigned int i = 3; i < TotalCount(); i++)
             {
                 listCtrl->SetItem (i, 0, wxString::Format(wxT("%d"), i+1), -1);
             }
             listCtrltotal->SetItemText (0, wxString::Format(wxT("%.2f"), (TotalCost()-*vector[3])));
-
+            delete vector[3];
+            vector[3] = 0;
+            vector.erase(vector.begin()+3);*/
         }
         else
         {
@@ -319,6 +326,11 @@ void LeftPanel::Deleting (wxCommandEvent& event)
     count = 0;
     countDelete = 0;
     listCtrltotal->SetItemText (0, "0");
+}
+
+int LeftPanel::ValueSpinCtrl()
+{
+    return spinctrl->GetValue();
 }
 
 /*int LeftPanel::VS (wxVector<float*> vec)
