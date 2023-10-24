@@ -32,33 +32,33 @@ public:
     //int VS (wxVector<float*> vec);
     //void ChangeIdOfListCtrl(unsigned int k);
 
-    int ValueSpinCtrl();
-
+    //int ValueSpinCtrl();
 
     
 
 private:
 
-    wxPanel *childPanel;
-    wxPanel *childPanel1;
-    wxListCtrl *listCtrl;
-    wxListCtrl *listCtrltotal;
-    wxTextCtrl *textctrl1;
-    wxTextCtrl *textctrl2;
-    wxTextCtrl *textctrl3;
-    wxStaticText *text4;
-    wxStaticText *text5;
+    wxPanel* childPanel;
+    wxPanel* childPanel1;
+    wxSpinCtrl* spinctrl; 
+    wxListCtrl* listCtrl;
+    wxListCtrl* listCtrltotal;
+    wxTextCtrl* textctrl1;
+    wxTextCtrl* textctrl2;
+    wxTextCtrl* textctrl3;
+    wxStaticText* text4;
+    wxStaticText* text5;
     //wxString *str;
     
     //wxButton *button5;
     static unsigned int count;
     static unsigned int countDelete;
 
-    float *m_value1 = 0;
-    float *m_value2 = 0;
-    wxVector<float*> vector;   
-
-    wxSpinCtrl *spinctrl; 
+    float* m_value1 = 0;
+    float* m_value2 = 0;
+    wxVector<float*> vector;
+    
+    wxDialog* myDialog;
 
 };
 
@@ -81,49 +81,50 @@ private:
 
 enum
 {
-    ID_Create = 1, ID_Panel, ID_Panel1, ID_Panel2
+    ID_Create = 1, ID_Panel, ID_Panel1, ID_Panel2, ID_Spin
 };
  
 wxIMPLEMENT_APP(MyApp);
  
 bool MyApp::OnInit()
 {
-    MyFrame *frame = new MyFrame();
+    MyFrame* frame = new MyFrame();
     frame->Show(true);
     return true;
 }
 
-LeftPanel::LeftPanel(wxPanel *parent) : wxPanel (parent, wxID_ANY, wxDefaultPosition, wxSize (710, 340), wxBORDER_SUNKEN)
+LeftPanel::LeftPanel(wxPanel* parent) : wxPanel (parent, wxID_ANY, wxDefaultPosition, wxSize (710, 340), wxBORDER_SUNKEN)
 {
-    wxStaticText *text1 = new wxStaticText(this, wxID_ANY, "Enter a name of product", wxPoint (0,0), wxSize (200, 20));
+    wxPanel* childPanel1 = new wxPanel (this, ID_Panel1, wxPoint (200,310), wxSize (70, 20));
+    wxPanel* childPanel = new wxPanel (this, ID_Panel2, wxPoint (0,190), wxSize (200, 150));
+    childPanel->Show(false);    
+   
+    wxStaticText* text1 = new wxStaticText(this, wxID_ANY, "Enter a name of product", wxPoint (0,0), wxSize (200, 20));
     textctrl1 = new wxTextCtrl(this, wxID_ANY, "", wxPoint (0,20), wxSize (200, 20));
-    wxStaticText *text2 = new wxStaticText(this, wxID_ANY, "Enter a price", wxPoint (0,40), wxSize (200, 20));
+    wxStaticText* text2 = new wxStaticText(this, wxID_ANY, "Enter a price", wxPoint (0,40), wxSize (200, 20));
     wxFloatingPointValidator<float> val1(2, m_value1, wxNUM_VAL_ZERO_AS_BLANK);
-        //val.SetRange(0, 10000000000);
+
     textctrl2 = new wxTextCtrl(this, wxID_ANY, "", wxPoint (0,60), wxSize (200, 20), 0L, val1);
-    wxStaticText *text3 = new wxStaticText(this, wxID_ANY, "Enter a quantity", wxPoint (0,80), wxSize (200, 20));
+    wxStaticText* text3 = new wxStaticText(this, wxID_ANY, "Enter a quantity", wxPoint (0,80), wxSize (200, 20));
     wxFloatingPointValidator<float> val2(3, m_value2, wxNUM_VAL_ZERO_AS_BLANK);
     textctrl3 = new wxTextCtrl(this, wxID_ANY, "", wxPoint (0,100), wxSize (200, 20), 0L, val2);
-    wxButton *button1 = new wxButton (this, wxID_ANY, "Add", wxPoint (50,130), wxSize (100, 20));
-    wxButton *button2 = new wxButton (this, wxID_ANY, "Edit/Delete", wxPoint (50,170), wxSize (100, 20)); 
-
-    wxPanel *childPanel1 = new wxPanel (this, ID_Panel1, wxPoint (200,310), wxSize (70, 20));
-    wxButton *button9 = new wxButton (childPanel1, wxID_ANY, "Clear all", wxPoint (0,0), wxSize (70, 20));
+    wxButton* button1 = new wxButton (this, wxID_ANY, "Add", wxPoint (50,130), wxSize (100, 20));
+    wxButton* button2 = new wxButton (this, wxID_ANY, "Edit/Delete", wxPoint (50,170), wxSize (100, 20)); 
 
 
-    wxPanel *childPanel = new wxPanel (this, ID_Panel2, wxPoint (0,190), wxSize (200, 150));
-    childPanel->Show(false);
+    wxButton* button9 = new wxButton (childPanel1, wxID_ANY, "Clear all", wxPoint (0,0), wxSize (70, 20));
+
+    wxStaticText* text4 = new wxStaticText(childPanel, wxID_ANY, "Select list number", wxPoint (20, 20), wxSize (160, 20), wxALIGN_CENTRE_HORIZONTAL);  //wxPoint (20,210), wxSize (160, 20)
 
 
-    wxStaticText *text4 = new wxStaticText(childPanel, wxID_ANY, "Select list number", wxPoint (20, 20), wxSize (160, 20), wxALIGN_CENTRE_HORIZONTAL);  //wxPoint (20,210), wxSize (160, 20)
-    wxSpinCtrl *spinctrl = new wxSpinCtrl(childPanel, wxID_ANY, "", wxPoint (70, 50), wxSize (60, 20), wxSP_ARROW_KEYS | wxALIGN_CENTRE_HORIZONTAL);  //wxPoint (70,230), wxSize (60, 20)
-    //spinctrl->SetRange(0, vector.size());
-    //spinctrl->SetValidator();
-    wxButton *button3 = new wxButton (childPanel, wxID_ANY, "Edit", wxPoint (20, 90), wxSize (50, 20));  //wxPoint (65,250), wxSize (70, 20)
-    wxButton *button4 = new wxButton (childPanel, wxID_ANY, "Delete", wxPoint (75, 90), wxSize (50, 20)); 
-    wxButton *button5 = new wxButton (childPanel, wxID_ANY, "Cancel", wxPoint (130, 90), wxSize (50, 20));  //wxPoint (65,250), wxSize (70, 20)
+    wxButton* button3 = new wxButton (childPanel, wxID_ANY, "Edit", wxPoint (20, 90), wxSize (50, 20));  //wxPoint (65,250), wxSize (70, 20)
+    wxButton* button4 = new wxButton (childPanel, wxID_ANY, "Delete", wxPoint (75, 90), wxSize (50, 20)); 
+    wxButton* button5 = new wxButton (childPanel, wxID_ANY, "Cancel", wxPoint (130, 90), wxSize (50, 20));  //wxPoint (65,250), wxSize (70, 20)
     
-    wxStaticText *text5 = new wxStaticText(this, wxID_ANY, "andrew", wxPoint (300, 310), wxSize (160, 20), wxALIGN_CENTRE_HORIZONTAL);
+    wxSpinCtrl* spinctrl = new wxSpinCtrl(childPanel, ID_Spin, wxEmptyString, wxPoint (70, 50), wxSize (60, 20), wxSP_ARROW_KEYS | wxALIGN_CENTRE_HORIZONTAL, 1);
+
+    //wxStaticText *text5 = new wxStaticText(this, wxID_ANY, wxString::Format(wxT("%d"), ValueSpinCtrl()), wxPoint (300, 310), wxSize (100, 20), wxALIGN_CENTRE_HORIZONTAL);
+    wxStaticText* text6 = new wxStaticText(this, wxID_ANY, "andrew", wxPoint (400, 310), wxSize (100, 20), wxALIGN_CENTRE_HORIZONTAL);
 
     listCtrl = new wxListCtrl (this, wxID_ANY, wxPoint (200,0), wxSize (510, 300), wxLC_REPORT);
     listCtrl->AppendColumn ("#", wxLIST_FORMAT_CENTER, 30);
@@ -151,25 +152,25 @@ MyFrame::MyFrame()
 {
     SetIcon (wxICON(icon_frame));
 
-    wxMenu *menuFile = new wxMenu;
+    wxMenu* menuFile = new wxMenu;
     /*menuFile->Append(ID_Create, "&Create...\tCtrl-H",
                      "Create a new list");
     menuFile->AppendSeparator();*/
 
     menuFile->Append(wxID_EXIT);
  
-    wxMenu *menuHelp = new wxMenu;
+    wxMenu* menuHelp = new wxMenu;
     menuHelp->Append(wxID_ABOUT);
 
-    wxMenuBar *menuBar = new wxMenuBar;
+    wxMenuBar* menuBar = new wxMenuBar;
     menuBar->Append(menuFile, "&File");
     menuBar->Append(menuHelp, "&Help");
 
     SetMenuBar( menuBar );
 
-    wxPanel *panel = new wxPanel(this, ID_Panel, wxPoint (0,0), wxSize (0,0));
+    wxPanel* panel = new wxPanel(this, ID_Panel, wxPoint (0,0), wxSize (0,0));
 
-    LeftPanel *leftPanel = new LeftPanel (panel);
+    LeftPanel* leftPanel = new LeftPanel (panel);
 
     CreateStatusBar();
     SetStatusText("Welcome to ListOP!");
@@ -204,7 +205,7 @@ void LeftPanel::Adding (wxCommandEvent& event)
     double quantity;
     textctrl3->GetValue().ToDouble(&quantity);
     listCtrl->SetItem (TotalCount(), 4, wxString::Format(wxT("%.2f"), price*quantity), -1);
-    float *total = new float (price*quantity); //память!!!!!!!!!!!!!!!!!!
+    float* total = new float (price*quantity); //память!!!!!!!!!!!!!!!!!!
     vector.push_back(total);
     listCtrltotal->SetItemText (0, wxString::Format(wxT("%.2f"), TotalCost()));
 
@@ -256,14 +257,35 @@ void LeftPanel::EditDelete(wxCommandEvent& event)
 
 void LeftPanel::Editing(wxCommandEvent& event)
 {
-    listCtrl->SetItem (3, 1, "lemon", -1);
-    
-    //spinctrl->SetValue (99);
-    //FindWindow (ID_Panel)->Show(true);
-    //childPanel->Show(true);
-    //text4->Show(true);
-    //spinctrl->Show(true);
-    //button5->Show(true);
+    if(vector.empty())
+    {
+        wxMessageBox("The list of product is empty.",
+                 "Empty list", wxOK | wxICON_INFORMATION);
+    }
+    else
+    {
+        wxSpinCtrl* spinCtrlInFunc = (wxSpinCtrl*)FindWindow(ID_Spin);
+        if (vector.size() > (spinCtrlInFunc->GetValue()-1))
+        {
+            /*listCtrl->DeleteItem(spinCtrlInFunc->GetValue()-1);
+            countDelete++;
+            for (unsigned int i = (spinCtrlInFunc->GetValue()-1); i < TotalCount(); i++)
+            {
+                listCtrl->SetItem (i, 0, wxString::Format(wxT("%d"), i+1), -1);
+            }
+            listCtrltotal->SetItemText (0, wxString::Format(wxT("%.2f"), (TotalCost()-*vector[spinCtrlInFunc->GetValue()-1])));
+            delete vector[spinCtrlInFunc->GetValue()-1];
+            vector[spinCtrlInFunc->GetValue()-1] = 0;
+            vector.erase(vector.begin()+spinCtrlInFunc->GetValue()-1);*/
+        }
+        else
+        {
+            wxMessageBox("This name is not in the list.",
+                 "Name missing", wxOK | wxICON_INFORMATION);
+            
+        }
+    }
+
 }
 
 void LeftPanel::DeletingOne(wxCommandEvent& event)
@@ -275,19 +297,19 @@ void LeftPanel::DeletingOne(wxCommandEvent& event)
     }
     else
     {
-        if (vector.size() > ValueSpinCtrl())    //spinctrl->GetValue()
+        wxSpinCtrl* spinCtrlInFunc = (wxSpinCtrl*)FindWindow(ID_Spin);
+        if (vector.size() > (spinCtrlInFunc->GetValue()-1))
         {
-            //count = listCtrl->GetItemCount()+1;
-            listCtrl->DeleteItem(ValueSpinCtrl());
-            /*countDelete++;
-            for (unsigned int i = 3; i < TotalCount(); i++)
+            listCtrl->DeleteItem(spinCtrlInFunc->GetValue()-1);
+            countDelete++;
+            for (unsigned int i = (spinCtrlInFunc->GetValue()-1); i < TotalCount(); i++)
             {
                 listCtrl->SetItem (i, 0, wxString::Format(wxT("%d"), i+1), -1);
             }
-            listCtrltotal->SetItemText (0, wxString::Format(wxT("%.2f"), (TotalCost()-*vector[3])));
-            delete vector[3];
-            vector[3] = 0;
-            vector.erase(vector.begin()+3);*/
+            listCtrltotal->SetItemText (0, wxString::Format(wxT("%.2f"), (TotalCost()-*vector[spinCtrlInFunc->GetValue()-1])));
+            delete vector[spinCtrlInFunc->GetValue()-1];
+            vector[spinCtrlInFunc->GetValue()-1] = 0;
+            vector.erase(vector.begin()+spinCtrlInFunc->GetValue()-1);
         }
         else
         {
@@ -297,15 +319,6 @@ void LeftPanel::DeletingOne(wxCommandEvent& event)
         }
     }
 
-
-    //text4->SetLabel ("Andrei Vinokurov");
-    //spinctrl->SetValue (50);
-
-    //FindWindow (ID_Panel)->Show(true);
-    //childPanel->Show(true);
-    //text4->Show(true);
-    //spinctrl->Show(true);
-    //button5->Show(true);
 }
 
 void LeftPanel::Canceling(wxCommandEvent& event)
@@ -328,10 +341,10 @@ void LeftPanel::Deleting (wxCommandEvent& event)
     listCtrltotal->SetItemText (0, "0");
 }
 
-int LeftPanel::ValueSpinCtrl()
+/*int LeftPanel::ValueSpinCtrl()
 {
     return spinctrl->GetValue();
-}
+}*/
 
 /*int LeftPanel::VS (wxVector<float*> vec)
 {
