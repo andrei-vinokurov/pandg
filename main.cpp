@@ -19,7 +19,7 @@ public:
 class LeftPanel : public wxPanel
 {
 public:
-    LeftPanel(wxPanel *parent);
+    LeftPanel(wxPanel* parent);
 
     void Adding(wxCommandEvent& event);
     void EditDelete(wxCommandEvent& event);
@@ -58,7 +58,7 @@ private:
     float* m_value2 = 0;
     wxVector<float*> vector;
     
-    wxDialog* myDialog;
+    //wxDialog* myDialog;
 
 };
 
@@ -81,7 +81,7 @@ private:
 
 enum
 {
-    ID_Create = 1, ID_Panel, ID_Panel1, ID_Panel2, ID_Spin
+    ID_Create = 1, ID_Panel, ID_Panel1, ID_Panel2, ID_Spin, ID_Dialog
 };
  
 wxIMPLEMENT_APP(MyApp);
@@ -137,6 +137,8 @@ LeftPanel::LeftPanel(wxPanel* parent) : wxPanel (parent, wxID_ANY, wxDefaultPosi
     listCtrltotal->AppendColumn ("total cost", wxLIST_FORMAT_CENTER, 110);
     listCtrltotal->InsertItem (0, "0");
 
+    //wxDialog* myDialog = new wxDialog (childPanel, ID_Dialog, "Product editing", wxDefaultPosition, wxSize (400, 300), wxDEFAULT_DIALOG_STYLE);
+    //myDialog->Show(1);
     button1->Bind(wxEVT_BUTTON, &LeftPanel::Adding, this);
     button2->Bind(wxEVT_BUTTON, &LeftPanel::EditDelete, this);
     button3->Bind(wxEVT_BUTTON, &LeftPanel::Editing, this);
@@ -265,8 +267,24 @@ void LeftPanel::Editing(wxCommandEvent& event)
     else
     {
         wxSpinCtrl* spinCtrlInFunc = (wxSpinCtrl*)FindWindow(ID_Spin);
+        //wxDialog* dialogInFunc = (wxDialog*)FindWindow(ID_Dialog);
         if (vector.size() > (spinCtrlInFunc->GetValue()-1))
         {
+            wxDialog* dialogInFunc = new wxDialog(childPanel, ID_Dialog, "Product editing", wxDefaultPosition, wxSize (400, 300), wxDEFAULT_DIALOG_STYLE);
+            dialogInFunc->ShowModal();
+            /*wxStaticText* text1 = new wxStaticText(FindWindow(ID_Dialog), wxID_ANY, "Enter a name of product", wxPoint (0,0), wxSize (200, 20));
+            textctrl1 = new wxTextCtrl(this, wxID_ANY, "", wxPoint (0,20), wxSize (200, 20));
+            wxStaticText* text2 = new wxStaticText(this, wxID_ANY, "Enter a price", wxPoint (0,40), wxSize (200, 20));
+            wxFloatingPointValidator<float> val1(2, m_value1, wxNUM_VAL_ZERO_AS_BLANK);
+            textctrl2 = new wxTextCtrl(this, wxID_ANY, "", wxPoint (0,60), wxSize (200, 20), 0L, val1);
+            wxStaticText* text3 = new wxStaticText(this, wxID_ANY, "Enter a quantity", wxPoint (0,80), wxSize (200, 20));
+            wxFloatingPointValidator<float> val2(3, m_value2, wxNUM_VAL_ZERO_AS_BLANK);
+            textctrl3 = new wxTextCtrl(this, wxID_ANY, "", wxPoint (0,100), wxSize (200, 20), 0L, val2);*/
+
+            dialogInFunc->Destroy();
+            //myDialog->Show(1);
+            //listCtrl->SetItem ((spinCtrlInFunc->GetValue()-1), 1, "andrew", -1);
+            //FindWindow(ID_Dialog)->Show(true);
             /*listCtrl->DeleteItem(spinCtrlInFunc->GetValue()-1);
             countDelete++;
             for (unsigned int i = (spinCtrlInFunc->GetValue()-1); i < TotalCount(); i++)
