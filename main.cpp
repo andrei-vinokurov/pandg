@@ -6,6 +6,7 @@
 #include <wx/validate.h>
 #include <wx/valnum.h>
 #include <wx/spinctrl.h>
+#include <wx/printdlg.h>
 #include "res.h"
 #endif
 
@@ -48,7 +49,8 @@ public:
     wxPanel* parentPanel;
     wxListCtrl* listCtrl;
     wxSpinCtrl* spinctrl; 
-
+    wxVector<float*> vector;
+    wxListCtrl* listCtrltotal;
     void Adding(wxCommandEvent& event);
     void EditDelete(wxCommandEvent& event);
     void DeletingOne(wxCommandEvent& event);
@@ -73,7 +75,7 @@ private:
     wxPanel* childPanel1;
 
     
-    wxListCtrl* listCtrltotal;
+    
     wxTextCtrl* textctrl1;
     wxTextCtrl* textctrl2;
     wxTextCtrl* textctrl3;
@@ -87,10 +89,7 @@ private:
 
     float* m_value1 = 0;
     float* m_value2 = 0;
-    wxVector<float*> vector;
-
-    myDialog* dialog;
-
+    
 };
 
 unsigned int LeftPanel::count = 0;
@@ -104,11 +103,10 @@ public:
     myDialog* dialogInFrame;
 
 private:
-    //wxPanel *panel;
-
-    //void OnCreate(wxCommandEvent& event);
+    
     void OnExit(wxCommandEvent& event);
     void OnAbout(wxCommandEvent& event);
+    void OnPrint(wxCommandEvent& event);
 
 };
 
@@ -171,10 +169,6 @@ LeftPanel::LeftPanel(wxPanel* parent) : wxPanel (parent, wxID_ANY, wxDefaultPosi
     listCtrltotal->AppendColumn ("total cost", wxLIST_FORMAT_CENTER, 110);
     listCtrltotal->InsertItem (0, "0");
 
-    //dialog = new myDialog(this);
-
-    //wxDialog* myDialog = new wxDialog (childPanel, ID_Dialog, "Product editing", wxDefaultPosition, wxSize (400, 300), wxDEFAULT_DIALOG_STYLE);
-    //myDialog->Show(1);
     button1->Bind(wxEVT_BUTTON, &LeftPanel::Adding, this);
     button2->Bind(wxEVT_BUTTON, &LeftPanel::EditDelete, this);
     button3->Bind(wxEVT_BUTTON, &LeftPanel::Editing, this);
@@ -220,6 +214,10 @@ MyFrame::MyFrame()
                      "Create a new list");
     menuFile->AppendSeparator();*/
 
+    menuFile->Append(wxID_PRINT);
+    
+    menuFile->AppendSeparator();
+
     menuFile->Append(wxID_EXIT);
  
     wxMenu* menuHelp = new wxMenu;
@@ -242,6 +240,7 @@ MyFrame::MyFrame()
 
     Bind(wxEVT_MENU, &MyFrame::OnAbout, this, wxID_ABOUT);
     Bind(wxEVT_MENU, &MyFrame::OnExit, this, wxID_EXIT);
+    Bind(wxEVT_MENU, &MyFrame::OnPrint, this, wxID_PRINT);
 }
 
 
@@ -255,7 +254,36 @@ void MyFrame::OnAbout(wxCommandEvent& event)
     wxMessageBox("This program helps to make a shopping list.",
                  "About Program", wxOK | wxICON_INFORMATION);
 }
- 
+
+void MyFrame::OnPrint(wxCommandEvent& event)
+{
+/*wxPrintDialogData dialogData;
+dialogData.SetFromPage(0);
+dialogData.SetToPage(10);
+
+wxPrintDialog printDialog(this, & m_dialogData);
+if (printDialog.ShowModal() == wxID_OK)
+{
+// After calling GetPrintDC(), the application
+// owns the DC
+wxDC* dc = printDialog.GetPrintDC();
+
+// Draw on the device context
+//...
+
+// Destroy it
+delete dc;
+
+}*/
+
+}
+
+/*void MyFrame::OnPageSetup(wxCommandEvent& event)
+{
+wxPageSetupDialog pageSetupDialog(this, & m_pageSetupData);
+if (pageSetupDialog.ShowModal() == wxID_OK)    
+m_pageSetupData = pageSetupDialog.GetPageSetupData();
+}*/
 
 void LeftPanel::Adding (wxCommandEvent& event)
 {
@@ -269,8 +297,9 @@ void LeftPanel::Adding (wxCommandEvent& event)
     listCtrl->SetItem (TotalCount(), 3, textctrl3->GetValue(), -1);
     double quantity;
     textctrl3->GetValue().ToDouble(&quantity);
-    listCtrl->SetItem (TotalCount(), 4, wxString::Format(wxT("%.2f"), price*quantity), -1);
-    float* total = new float (price*quantity); //память!!!!!!!!!!!!!!!!!!
+    float* total = new float (price*quantity);
+    listCtrl->SetItem (TotalCount(), 4, wxString::Format(wxT("%.2f"), *total), -1);
+    //float* total = new float (price*quantity); //память!!!!!!!!!!!!!!!!!!
     vector.push_back(total);
     listCtrltotal->SetItemText (0, wxString::Format(wxT("%.2f"), TotalCost()));
 
@@ -329,56 +358,18 @@ void LeftPanel::Editing(wxCommandEvent& event)
     }
     else
     {
-        //wxSpinCtrl* spinCtrlInFunc = (wxSpinCtrl*)FindWindow(ID_Spin);
-        //wxDialog* dialogInFunc = (wxDialog*)FindWindow(ID_Dialog);
+
         if (vector.size() > (spinctrl->GetValue()-1))
         {
-            //wxPanel* dialogPanel = new wxPanel (this, wxID_ANY, wxDefaultPosition, wxSize (400, 300));
-            //myDialog* dialog = new myDialog(this);
+
             MyFrame* frameFromDialog = (MyFrame*) parentPanel->GetParent();
             myDialog* dlg = frameFromDialog->dialogInFrame;
             dlg->textctrlDialog1->SetValue(listCtrl->GetItemText((spinctrl->GetValue()-1), 1));
             dlg->textctrlDialog2->SetValue(listCtrl->GetItemText((spinctrl->GetValue()-1), 2));
             dlg->textctrlDialog3->SetValue(listCtrl->GetItemText((spinctrl->GetValue()-1), 3));
 
-            dlg->ShowModal();   // DESTROY!!!!!!!!!
+            dlg->ShowModal();
 
-            /*wxDialog* dialogInFunc = new wxDialog(childPanel, ID_Dialog, "Product editing", wxDefaultPosition, wxSize (400, 300), wxDEFAULT_DIALOG_STYLE | wxSTAY_ON_TOP);
-            dialogInFunc->Show(1);
-            wxStaticText* text11 = new wxStaticText(dialogInFunc, wxID_ANY, "Enter a name of product", wxPoint (0,0), wxSize (200, 20));
-            wxTextCtrl* textctrl11 = new wxTextCtrl(dialogInFunc, wxID_ANY, "", wxPoint (0,20), wxSize (200, 20));*/
-            
-            /*wxStaticText* text2 = new wxStaticText(this, wxID_ANY, "Enter a price", wxPoint (0,40), wxSize (200, 20));
-            wxFloatingPointValidator<float> val1(2, m_value1, wxNUM_VAL_ZERO_AS_BLANK);
-            textctrl2 = new wxTextCtrl(this, wxID_ANY, "", wxPoint (0,60), wxSize (200, 20), 0L, val1);
-            wxStaticText* text3 = new wxStaticText(this, wxID_ANY, "Enter a quantity", wxPoint (0,80), wxSize (200, 20));
-            wxFloatingPointValidator<float> val2(3, m_value2, wxNUM_VAL_ZERO_AS_BLANK);
-            textctrl3 = new wxTextCtrl(this, wxID_ANY, "", wxPoint (0,100), wxSize (200, 20), 0L, val2);*/
-            
-            //wxButton* buttonOk = new wxButton (dialogInFunc, wxID_ANY, "Ok", wxPoint (20, 350), wxSize (50, 20));
-            //wxButton* buttonCancel = new wxButton (dialogInFunc, wxID_ANY, "Cancel", wxPoint (100, 350), wxSize (50, 20));
-            
-
-            //buttonOk->Bind(wxEVT_BUTTON, &LeftPanel::OkDialog, dialogInFunc);
-
-            //buttonCancel->Bind(wxEVT_BUTTON, &LeftPanel::CancelDialog, this);
-
-            //dialogInFunc->Destroy();
-          
-            //dialogPanel->Destroy();
-            //myDialog->Show(1);
-            //listCtrl->SetItem ((spinCtrlInFunc->GetValue()-1), 1, "andrew", -1);
-            //FindWindow(ID_Dialog)->Show(true);
-            /*listCtrl->DeleteItem(spinCtrlInFunc->GetValue()-1);
-            countDelete++;
-            for (unsigned int i = (spinCtrlInFunc->GetValue()-1); i < TotalCount(); i++)
-            {
-                listCtrl->SetItem (i, 0, wxString::Format(wxT("%d"), i+1), -1);
-            }
-            listCtrltotal->SetItemText (0, wxString::Format(wxT("%.2f"), (TotalCost()-*vector[spinCtrlInFunc->GetValue()-1])));
-            delete vector[spinCtrlInFunc->GetValue()-1];
-            vector[spinCtrlInFunc->GetValue()-1] = 0;
-            vector.erase(vector.begin()+spinCtrlInFunc->GetValue()-1);*/
         }
         else
         {
@@ -399,7 +390,7 @@ void LeftPanel::DeletingOne(wxCommandEvent& event)
     }
     else
     {
-        //wxSpinCtrl* spinCtrlInFunc = (wxSpinCtrl*)FindWindow(ID_Spin);
+
         if (vector.size() > (spinctrl->GetValue()-1))
         {
             listCtrl->DeleteItem(spinctrl->GetValue()-1);
@@ -445,18 +436,9 @@ void LeftPanel::Deleting (wxCommandEvent& event)
 
 void myDialog::OkDialog(wxCommandEvent& event)
 {
-    
-    //textctrlDialog1
+
     MyFrame* frameFromFunc = (MyFrame*)parentPanelForDialog->GetParent();
-    //LeftPanel* panelDial = (LeftPanel*) FindWindow(ID_Panel);
-    //panelD->listCtrl;
-    //textctrlDialog1->SetValue(wxString::Format(wxT("%d"), this->GetParent()->GetID()));
-    //LeftPanel* panelInDialog = this->GetParent();
-    //if (panelD->listCtrl->GetItemText(0, 1) != "0" //&&
-    //panelD->listCtrl->GetItemText((panelD->spinctrl->GetValue()-1), 2)==textctrlDialog2->GetValue() &&
-    //panelD->listCtrl->GetItemText((panelD->spinctrl->GetValue()-1), 3)==textctrlDialog3->GetValue()
-   // )
-    //{/*}
+
     if (frameFromFunc->leftPanel->listCtrl->GetItemText((frameFromFunc->leftPanel->spinctrl->GetValue()-1), 1)==textctrlDialog1->GetValue() &&
     frameFromFunc->leftPanel->listCtrl->GetItemText((frameFromFunc->leftPanel->spinctrl->GetValue()-1), 2)==textctrlDialog2->GetValue() &&
     frameFromFunc->leftPanel->listCtrl->GetItemText((frameFromFunc->leftPanel->spinctrl->GetValue()-1), 3)==textctrlDialog3->GetValue())
@@ -467,9 +449,31 @@ void myDialog::OkDialog(wxCommandEvent& event)
     
     else
     {
-        wxMessageBox("Zaebis",                    //"You haven't made any changes"
-                 "Chotko", wxOK | wxICON_INFORMATION);
-        //Close();
+        if(frameFromFunc->leftPanel->listCtrl->GetItemText((frameFromFunc->leftPanel->spinctrl->GetValue()-1), 1)!=textctrlDialog1->GetValue())
+        {
+            frameFromFunc->leftPanel->listCtrl->SetItem ((frameFromFunc->leftPanel->spinctrl->GetValue()-1), 1, textctrlDialog1->GetValue(), -1);
+        }
+        if(frameFromFunc->leftPanel->listCtrl->GetItemText((frameFromFunc->leftPanel->spinctrl->GetValue()-1), 2)!=textctrlDialog2->GetValue())
+        {
+            frameFromFunc->leftPanel->listCtrl->SetItem ((frameFromFunc->leftPanel->spinctrl->GetValue()-1), 2, textctrlDialog2->GetValue(), -1);
+        }
+        if(frameFromFunc->leftPanel->listCtrl->GetItemText((frameFromFunc->leftPanel->spinctrl->GetValue()-1), 3)!=textctrlDialog3->GetValue())
+        {
+            frameFromFunc->leftPanel->listCtrl->SetItem ((frameFromFunc->leftPanel->spinctrl->GetValue()-1), 3, textctrlDialog3->GetValue(), -1);
+        }
+        double priceInDialog;
+        double quantityInDialog;
+        textctrlDialog2->GetValue().ToDouble(&priceInDialog);
+        textctrlDialog3->GetValue().ToDouble(&quantityInDialog);
+        frameFromFunc->leftPanel->listCtrltotal->SetItemText (0, wxString::Format(wxT("%.2f"), (frameFromFunc->leftPanel->TotalCost() - 
+            (*(frameFromFunc->leftPanel->vector[frameFromFunc->leftPanel->spinctrl->GetValue()-1])) + priceInDialog * quantityInDialog)));
+        
+        *(frameFromFunc->leftPanel->vector[frameFromFunc->leftPanel->spinctrl->GetValue()-1]) = priceInDialog * quantityInDialog;
+        
+        frameFromFunc->leftPanel->listCtrl->SetItem ((frameFromFunc->leftPanel->spinctrl->GetValue()-1), 4, wxString::Format(wxT("%.2f"), 
+            *(frameFromFunc->leftPanel->vector[frameFromFunc->leftPanel->spinctrl->GetValue()-1])), -1);
+
+        Close();
     }
 }
 
