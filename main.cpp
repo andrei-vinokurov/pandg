@@ -7,6 +7,8 @@
 #include <wx/valnum.h>
 #include <wx/spinctrl.h>
 #include <wx/printdlg.h>
+#include <wx/print.h>
+#include <wx/cmndata.h>
 #include "res.h"
 #endif
 
@@ -95,6 +97,14 @@ private:
 unsigned int LeftPanel::count = 0;
 unsigned int LeftPanel::countDelete = 0;
 
+class MyPrintout : public wxPrintout
+{
+public:
+    MyPrintout();
+    bool OnPrintPage(int pageNum);
+    //bool HasPage();
+};
+
 class MyFrame : public wxFrame
 {
 public:
@@ -103,10 +113,13 @@ public:
     myDialog* dialogInFrame;
 
 private:
-    
+    wxPrintDialogData m_dialogData;
+    wxPageSetupDialogData m_pageSetupDialogData;
     void OnExit(wxCommandEvent& event);
     void OnAbout(wxCommandEvent& event);
     void OnPrint(wxCommandEvent& event);
+    void OnPageSetup(wxCommandEvent& event);
+    void OnPreview(wxCommandEvent& event);
 
 };
 
@@ -200,8 +213,15 @@ myDialog::myDialog(wxPanel* parent) : wxDialog(parent, ID_Dialog, "Product editi
     buttonOk->Bind(wxEVT_BUTTON, &myDialog::OkDialog, this);
     buttonCancel->Bind(wxEVT_BUTTON, &myDialog::CancelDialog, this);
 
+}
+
+MyPrintout::MyPrintout()
+{
+    //wxSize imageSize = wxSize(500,300);
+    //void FitThisSizeToPage	(const wxSize &imageSize);	//const wxSize & 	imageSize
 
 
+    //SetLogicalOrigin(200,0);
 }
 
 MyFrame::MyFrame()
@@ -215,6 +235,14 @@ MyFrame::MyFrame()
     menuFile->AppendSeparator();*/
 
     menuFile->Append(wxID_PRINT);
+    
+    menuFile->AppendSeparator();
+
+    menuFile->Append(wxID_PAGE_SETUP, "&PageSetup");
+    
+    menuFile->AppendSeparator();
+
+    menuFile->Append(wxID_PREVIEW, "&Preview");
     
     menuFile->AppendSeparator();
 
@@ -241,7 +269,10 @@ MyFrame::MyFrame()
     Bind(wxEVT_MENU, &MyFrame::OnAbout, this, wxID_ABOUT);
     Bind(wxEVT_MENU, &MyFrame::OnExit, this, wxID_EXIT);
     Bind(wxEVT_MENU, &MyFrame::OnPrint, this, wxID_PRINT);
+    Bind(wxEVT_MENU, &MyFrame::OnPageSetup, this, wxID_PAGE_SETUP);
+    Bind(wxEVT_MENU, &MyFrame::OnPreview, this, wxID_PREVIEW);
 }
+
 
 
 void MyFrame::OnExit(wxCommandEvent& event)
@@ -257,11 +288,11 @@ void MyFrame::OnAbout(wxCommandEvent& event)
 
 void MyFrame::OnPrint(wxCommandEvent& event)
 {
-/*wxPrintDialogData dialogData;
+wxPrintDialogData dialogData;
 dialogData.SetFromPage(0);
 dialogData.SetToPage(10);
 
-wxPrintDialog printDialog(this, & m_dialogData);
+wxPrintDialog printDialog(this, &m_dialogData);     //& m_dialogData
 if (printDialog.ShowModal() == wxID_OK)
 {
 // After calling GetPrintDC(), the application
@@ -270,20 +301,42 @@ wxDC* dc = printDialog.GetPrintDC();
 
 // Draw on the device context
 //...
+//dc->SetLogicalOrigin(200, 0);
 
 // Destroy it
 delete dc;
-
-}*/
+//delete dialogData;
 
 }
 
-/*void MyFrame::OnPageSetup(wxCommandEvent& event)
+}
+
+
+void MyFrame::OnPreview(wxCommandEvent& event)
 {
-wxPageSetupDialog pageSetupDialog(this, & m_pageSetupData);
+wxPrintPreview *preview = new wxPrintPreview(new MyPrintout, new MyPrintout, & m_dialogData);   //
+if (!preview->Ok())
+{
+delete preview;
+wxMessageBox(wxT("There was a problem previewing.\nPerhaps your current printer is not set correctly?"), wxT("Previewing"), wxOK);
+return;
+}    
+
+wxPreviewFrame *frame = new wxPreviewFrame(preview, this, wxT("Demo Print Preview"));
+frame->Centre(wxBOTH);
+frame->Initialize();
+frame->Show(true);
+
+}
+
+
+
+void MyFrame::OnPageSetup(wxCommandEvent& event)
+{
+wxPageSetupDialog pageSetupDialog(this, & m_pageSetupDialogData);    //& m_pageSetupDialogData
 if (pageSetupDialog.ShowModal() == wxID_OK)    
-m_pageSetupData = pageSetupDialog.GetPageSetupData();
-}*/
+m_pageSetupDialogData = pageSetupDialog.GetPageSetupData();
+}
 
 void LeftPanel::Adding (wxCommandEvent& event)
 {
@@ -481,3 +534,13 @@ void myDialog::CancelDialog(wxCommandEvent& event)
 {
     Close();
 }
+
+bool MyPrintout::OnPrintPage(int pageNum)
+{
+    return true;
+}
+
+/*bool MyPrintout::HasPage()
+{
+    return true;
+}*/
