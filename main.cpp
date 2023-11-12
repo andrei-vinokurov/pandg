@@ -102,7 +102,7 @@ class MyPrintout : public wxPrintout
 public:
     MyPrintout();
     bool OnPrintPage(int pageNum);
-    //bool HasPage();
+    bool HasPage(int pageNum);
 };
 
 class MyFrame : public wxFrame
@@ -122,7 +122,7 @@ private:
     void OnPreview(wxCommandEvent& event);
 
 };
-
+wxPrintDialogData g_dialogData;
 enum
 {
     ID_Create = 1, ID_Panel, ID_Panel1, ID_Panel2, ID_Spin, ID_Dialog, ID_buttonOk, ID_MyPanel
@@ -215,7 +215,7 @@ myDialog::myDialog(wxPanel* parent) : wxDialog(parent, ID_Dialog, "Product editi
 
 }
 
-MyPrintout::MyPrintout()
+MyPrintout::MyPrintout() : wxPrintout()
 {
     //wxSize imageSize = wxSize(500,300);
     //void FitThisSizeToPage	(const wxSize &imageSize);	//const wxSize & 	imageSize
@@ -322,7 +322,7 @@ wxMessageBox(wxT("There was a problem previewing.\nPerhaps your current printer 
 return;
 }    
 
-wxPreviewFrame *frame = new wxPreviewFrame(preview, this, wxT("Demo Print Preview"));
+wxPreviewFrame *frame = new wxPreviewFrame(preview, this, wxT("Demo Print Preview"), wxPoint(0, 0), wxSize (710, 340));
 frame->Centre(wxBOTH);
 frame->Initialize();
 frame->Show(true);
@@ -537,10 +537,18 @@ void myDialog::CancelDialog(wxCommandEvent& event)
 
 bool MyPrintout::OnPrintPage(int pageNum)
 {
+    wxDC *ptr = GetDC();
+    if(ptr == NULL || !ptr->IsOk())
+    {
+        return false;
+    }
+    wxDC &dc = *ptr;
+    dc.Clear();
+    dc.SetMapMode(wxMM_POINTS);
     return true;
 }
 
-/*bool MyPrintout::HasPage()
+bool MyPrintout::HasPage(int pageNum)
 {
     return true;
-}*/
+}
