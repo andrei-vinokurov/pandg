@@ -12,6 +12,8 @@
 #include "res.h"
 #endif
 
+wxPrintDialogData g_printDialogData;
+
 class MyApp : public wxApp
 {
 public:
@@ -122,7 +124,7 @@ private:
     void OnPreview(wxCommandEvent& event);
 
 };
-wxPrintDialogData g_dialogData;
+
 enum
 {
     ID_Create = 1, ID_Panel, ID_Panel1, ID_Panel2, ID_Spin, ID_Dialog, ID_buttonOk, ID_MyPanel
@@ -217,6 +219,7 @@ myDialog::myDialog(wxPanel* parent) : wxDialog(parent, ID_Dialog, "Product editi
 
 MyPrintout::MyPrintout() : wxPrintout()
 {
+
     //wxSize imageSize = wxSize(500,300);
     //void FitThisSizeToPage	(const wxSize &imageSize);	//const wxSize & 	imageSize
 
@@ -257,6 +260,8 @@ MyFrame::MyFrame()
 
     SetMenuBar( menuBar );
 
+    //wxStaticText* staticText = new wxStaticText (this, wxID_ANY, "Text", wxPoint (300, 210), wxSize (100, 20), wxALIGN_CENTRE_HORIZONTAL);
+
     wxPanel* panel = new wxPanel(this, ID_Panel, wxPoint (0,0), wxSize (0,0));
 
     leftPanel = new LeftPanel(panel);
@@ -288,7 +293,23 @@ void MyFrame::OnAbout(wxCommandEvent& event)
 
 void MyFrame::OnPrint(wxCommandEvent& event)
 {
-wxPrintDialogData dialogData;
+    wxPrinter printer(& g_printDialogData);
+    MyPrintout printout(wxT("My printout"));  //wxT("My printout")
+
+    if (!printer.Print(this, &printout, true))
+    {
+        if (wxPrinter::GetLastError() == wxPRINTER_ERROR)
+        wxMessageBox(wxT("There was a problem printing.\nPerhaps your current printer is not set correctly?"), wxT("Printing"), wxOK);
+        else
+        wxMessageBox(wxT("You cancelled printing"), wxT("Printing"), wxOK);
+    }
+    else
+    {
+        g_printDialogData = printer.GetPrintDialogData();
+    }
+
+
+/*wxPrintDialogData dialogData;
 dialogData.SetFromPage(0);
 dialogData.SetToPage(10);
 
@@ -307,7 +328,7 @@ wxDC* dc = printDialog.GetPrintDC();
 delete dc;
 //delete dialogData;
 
-}
+}*/
 
 }
 
@@ -537,14 +558,14 @@ void myDialog::CancelDialog(wxCommandEvent& event)
 
 bool MyPrintout::OnPrintPage(int pageNum)
 {
-    wxDC *ptr = GetDC();
+    /*wxDC *ptr = GetDC();
     if(ptr == NULL || !ptr->IsOk())
     {
         return false;
     }
     wxDC &dc = *ptr;
     dc.Clear();
-    dc.SetMapMode(wxMM_POINTS);
+    dc.SetMapMode(wxMM_POINTS);*/
     return true;
 }
 
