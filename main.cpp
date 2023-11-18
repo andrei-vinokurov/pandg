@@ -9,6 +9,7 @@
 #include <wx/printdlg.h>
 #include <wx/print.h>
 #include <wx/cmndata.h>
+#include <wx/datetime.h>
 //#include <wx/gdicmn.h>
 //#include <memory>
 #include "res.h"
@@ -697,14 +698,18 @@ bool MyPrintout::OnPrintPage(int page)
         // screen size of text matches paper size.
         MapScreenSizeToPage();
 
-        dc->DrawText(wxString::Format("PAGE %d", page), 0, 0);
+        dc->DrawIcon(wxICON(icon_frame), 5, 5);
+
+        dc->DrawText(wxString::Format("PAGE %d", page), 50, 0);
+
+        dc->DrawText("This program was developed by Andrey Vinokurov", 200, 0);
 
         long x = 100, y= 100;
         wxCoord wordWidth, wordHeight;
         //dc->DrawRectangle(300, 300, 100, 100);
         //dc->DrawText ("andrew", 200, 200);
 
-
+        dc->DrawText("List of products " + wxDateTime::Now().Format(), x-10, y-60);
         
         if(!m_frame->leftPanel->vector.empty())
         {
@@ -743,7 +748,7 @@ bool MyPrintout::OnPrintPage(int page)
             dc->DrawLine(x-10, y+30*(m_frame->leftPanel->vector.size()), x+500, y+30*(m_frame->leftPanel->vector.size()));
             dc->DrawText(m_frame->leftPanel->m_nameColumn6, x + 400, y + 30*(m_frame->leftPanel->vector.size()+1));
             dc->DrawText(m_frame->leftPanel->listCtrltotal->GetItemText(0, 0), x + 400, y + 30*(m_frame->leftPanel->vector.size()+2));
-
+            
         }
 
         return true;
