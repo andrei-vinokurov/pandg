@@ -294,7 +294,7 @@ void MyFrame::OnAbout(wxCommandEvent& event)
 void MyFrame::OnPrint(wxCommandEvent& event)
 {
     wxPrinter printer(& g_printDialogData);
-    MyPrintout printout(wxT("My printout"));  //wxT("My printout")
+    MyPrintout printout;  //wxT("My printout")
 
     if (!printer.Print(this, &printout, true))
     {
