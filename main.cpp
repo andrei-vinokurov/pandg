@@ -9,16 +9,38 @@
 #include <wx/printdlg.h>
 #include <wx/print.h>
 #include <wx/cmndata.h>
+//#include <wx/gdicmn.h>
+//#include <memory>
 #include "res.h"
 #endif
 
-wxPrintDialogData g_printDialogData;
+// Global print data, to remember settings during the session
+wxPrintData* g_printData = nullptr;
+
+// Global page setup data
+wxPageSetupDialogData* g_pageSetupData = nullptr;
 
 class MyApp : public wxApp
 {
 public:
-    virtual bool OnInit();
+    virtual bool OnInit() override;
+    virtual int OnExit() override;
+/*void Draw(wxDC& dc);
+    void IncrementAngle()
+        { m_angle += 5; }
+    void DecrementAngle()
+        { m_angle -= 5; }
+
+    wxFont& GetTestFont()
+        { return m_testFont; }
+
+private:
+    int       m_angle;
+    wxBitmap  m_bitmap;
+    wxFont    m_testFont;*/
 };
+
+
 
 class myDialog : public wxDialog
 {
@@ -64,6 +86,13 @@ public:
     static unsigned int TotalCount();
     float TotalCost();
 
+    wxString m_nameColumn1 = "#";
+    wxString m_nameColumn2 = "name of product";
+    wxString m_nameColumn3 = "price";
+    wxString m_nameColumn4 = "quantity";
+    wxString m_nameColumn5 = "total";
+    wxString m_nameColumn6 = "total cost";
+
     //void OkDialog(wxCommandEvent& event);
     //void CancelDialog(wxCommandEvent& event);
 
@@ -99,24 +128,18 @@ private:
 unsigned int LeftPanel::count = 0;
 unsigned int LeftPanel::countDelete = 0;
 
-class MyPrintout : public wxPrintout
-{
-public:
-    MyPrintout();
-    bool OnPrintPage(int pageNum);
-    bool HasPage(int pageNum);
-};
-
 class MyFrame : public wxFrame
 {
+
 public:
     MyFrame();
     LeftPanel *leftPanel;
     myDialog* dialogInFrame;
+    //wxPrintDialogData m_dialogData;
+    //wxPageSetupDialogData m_pageSetupDialogData;
 
 private:
-    wxPrintDialogData m_dialogData;
-    wxPageSetupDialogData m_pageSetupDialogData;
+    
     void OnExit(wxCommandEvent& event);
     void OnAbout(wxCommandEvent& event);
     void OnPrint(wxCommandEvent& event);
@@ -124,6 +147,39 @@ private:
     void OnPreview(wxCommandEvent& event);
 
 };
+
+
+
+class MyPrintout : public wxPrintout
+{
+
+public:
+    MyPrintout(MyFrame* frame, wxPrintDialogData* printDlgData, const wxString& title = "My printout") : wxPrintout(title)
+    {
+        m_frame = frame;
+        m_printDlgData = printDlgData;
+    }
+
+    virtual bool OnPrintPage(int page) override;
+    virtual bool HasPage(int page) override;
+    virtual bool OnBeginDocument(int startPage, int endPage) override;
+    virtual void GetPageInfo(int *minPage, int *maxPage, int *selPageFrom, int *selPageTo) override;
+    bool IsPageSelected(int pageNum);
+
+    void DrawPageOne();
+    void DrawPageTwo();
+
+    // Writes a header on a page. Margin units are in millimetres.
+    bool WritePageHeader(wxPrintout *printout, wxDC *dc, const wxString& text, double mmToLogical);
+
+
+private:
+    MyFrame* m_frame;
+    wxPrintDialogData* m_printDlgData;
+
+};
+
+
 
 enum
 {
@@ -134,9 +190,21 @@ wxIMPLEMENT_APP(MyApp);
  
 bool MyApp::OnInit()
 {
+    g_printData = new wxPrintData;
+    g_pageSetupData = new wxPageSetupDialogData;
+    (*g_pageSetupData) = *g_printData;
+
     MyFrame* frame = new MyFrame();
     frame->Show(true);
     return true;
+}
+
+int MyApp::OnExit()
+{
+    delete g_printData;
+    delete g_pageSetupData;
+
+    return wxApp::OnExit();
 }
 
 LeftPanel::LeftPanel(wxPanel* parent) : wxPanel (parent, wxID_ANY, wxDefaultPosition, wxSize (710, 340), wxBORDER_SUNKEN)
@@ -174,14 +242,14 @@ LeftPanel::LeftPanel(wxPanel* parent) : wxPanel (parent, wxID_ANY, wxDefaultPosi
     wxStaticText* text6 = new wxStaticText(this, wxID_ANY, "andrew", wxPoint (400, 310), wxSize (100, 20), wxALIGN_CENTRE_HORIZONTAL);
 
     listCtrl = new wxListCtrl (this, wxID_ANY, wxPoint (200,0), wxSize (510, 300), wxLC_REPORT);
-    listCtrl->AppendColumn ("#", wxLIST_FORMAT_CENTER, 30);
-    listCtrl->AppendColumn ("name of product", wxLIST_FORMAT_CENTER, 150);
-    listCtrl->AppendColumn ("price", wxLIST_FORMAT_CENTER, 110);
-    listCtrl->AppendColumn ("quantity", wxLIST_FORMAT_CENTER, 110);
-    listCtrl->AppendColumn ("total", wxLIST_FORMAT_CENTER, 110);
+    listCtrl->AppendColumn (m_nameColumn1, wxLIST_FORMAT_CENTER, 30);
+    listCtrl->AppendColumn (m_nameColumn2, wxLIST_FORMAT_CENTER, 150);
+    listCtrl->AppendColumn (m_nameColumn3, wxLIST_FORMAT_CENTER, 110);
+    listCtrl->AppendColumn (m_nameColumn4, wxLIST_FORMAT_CENTER, 110);
+    listCtrl->AppendColumn (m_nameColumn5, wxLIST_FORMAT_CENTER, 110);
 
     listCtrltotal = new wxListCtrl (this, wxID_ANY, wxPoint (600,300), wxSize (110, 40), wxLC_REPORT);
-    listCtrltotal->AppendColumn ("total cost", wxLIST_FORMAT_CENTER, 110);
+    listCtrltotal->AppendColumn (m_nameColumn6, wxLIST_FORMAT_CENTER, 110);
     listCtrltotal->InsertItem (0, "0");
 
     button1->Bind(wxEVT_BUTTON, &LeftPanel::Adding, this);
@@ -215,16 +283,6 @@ myDialog::myDialog(wxPanel* parent) : wxDialog(parent, ID_Dialog, "Product editi
     buttonOk->Bind(wxEVT_BUTTON, &myDialog::OkDialog, this);
     buttonCancel->Bind(wxEVT_BUTTON, &myDialog::CancelDialog, this);
 
-}
-
-MyPrintout::MyPrintout() : wxPrintout()
-{
-
-    //wxSize imageSize = wxSize(500,300);
-    //void FitThisSizeToPage	(const wxSize &imageSize);	//const wxSize & 	imageSize
-
-
-    //SetLogicalOrigin(200,0);
 }
 
 MyFrame::MyFrame()
@@ -293,8 +351,43 @@ void MyFrame::OnAbout(wxCommandEvent& event)
 
 void MyFrame::OnPrint(wxCommandEvent& event)
 {
-    wxPrinter printer(& g_printDialogData);
-    MyPrintout printout;  //wxT("My printout")
+    wxPrintDialogData printDialogData(* g_printData);
+    printDialogData.EnableSelection(true);
+    printDialogData.EnablePageNumbers(true);
+    //printDialogData.EnableCurrentPage(true);
+    printDialogData.SetMinPage(1);
+    printDialogData.SetMaxPage(2);
+    printDialogData.SetFromPage(1);
+    printDialogData.SetToPage(2);
+    printDialogData.SetAllPages(true);
+
+    wxPrinter printer(&printDialogData);
+
+    // wxPrinter copies printDialogData internally, so we have to pass this
+    // instance in order to evaluate users inputs.
+    MyPrintout printout(this, &printer.GetPrintDialogData(), "My printout");
+
+    SetStatusText(""); // clear previous "cancelled" message, if any
+
+    if (!printer.Print(this, &printout, true /*prompt*/))
+    {
+        if (wxPrinter::GetLastError() == wxPRINTER_ERROR)
+        {
+            wxLogError("There was a problem printing. Perhaps your current printer is not set correctly?");
+        }
+        else
+        {
+            wxLogStatus("You canceled printing");
+        }
+    }
+    else
+    {
+        (*g_printData) = printer.GetPrintDialogData().GetPrintData();
+    }
+
+
+    /*wxPrinter printer(& g_printDialogData);
+    MyPrintout printout(wxT("My printout"));  //wxT("My printout")
 
     if (!printer.Print(this, &printout, true))
     {
@@ -306,7 +399,7 @@ void MyFrame::OnPrint(wxCommandEvent& event)
     else
     {
         g_printDialogData = printer.GetPrintDialogData();
-    }
+    }*/
 
 
 /*wxPrintDialogData dialogData;
@@ -335,7 +428,28 @@ delete dc;
 
 void MyFrame::OnPreview(wxCommandEvent& event)
 {
-wxPrintPreview *preview = new wxPrintPreview(new MyPrintout, new MyPrintout, & m_dialogData);   //
+
+// Pass two printout objects: for preview, and possible printing.
+    wxPrintDialogData printDialogData(* g_printData);
+
+    wxPrinter printer(&printDialogData);
+
+    // wxPrinter copies printDialogData internally, so we have to pass this
+    // instance in order to evaluate users inputs.
+
+    wxPrintPreview *preview =
+        new wxPrintPreview(new MyPrintout(this, &printDialogData), new MyPrintout(this, &printDialogData), &printDialogData);   //new MyPrintout(this, &printDialogData), new MyPrintout(this, &printDialogData), &printDialogData
+    if (!preview->IsOk())
+    {
+        delete preview;
+        wxLogError("There was a problem previewing.\nPerhaps your current printer is not set correctly?");
+        return;
+    }
+
+    wxPreviewFrame *frame = new wxPreviewFrame(preview, this, "Demo Print Preview");
+
+
+/*wxPrintPreview *preview = new wxPrintPreview(new MyPrintout, new MyPrintout, & m_dialogData);   //
 if (!preview->Ok())
 {
 delete preview;
@@ -343,7 +457,7 @@ wxMessageBox(wxT("There was a problem previewing.\nPerhaps your current printer 
 return;
 }    
 
-wxPreviewFrame *frame = new wxPreviewFrame(preview, this, wxT("Demo Print Preview"), wxPoint(0, 0), wxSize (710, 340));
+wxPreviewFrame *frame = new wxPreviewFrame(preview, this, wxT("Demo Print Preview"), wxPoint(0, 0), wxSize (710, 340)); */
 frame->Centre(wxBOTH);
 frame->Initialize();
 frame->Show(true);
@@ -354,9 +468,18 @@ frame->Show(true);
 
 void MyFrame::OnPageSetup(wxCommandEvent& event)
 {
-wxPageSetupDialog pageSetupDialog(this, & m_pageSetupDialogData);    //& m_pageSetupDialogData
+
+    (*g_pageSetupData) = *g_printData;
+
+    wxPageSetupDialog pageSetupDialog(this, g_pageSetupData);
+    pageSetupDialog.ShowModal();
+
+    (*g_printData) = pageSetupDialog.GetPageSetupDialogData().GetPrintData();
+    (*g_pageSetupData) = pageSetupDialog.GetPageSetupDialogData();
+
+/*wxPageSetupDialog pageSetupDialog(this, & m_pageSetupDialogData);    //& m_pageSetupDialogData
 if (pageSetupDialog.ShowModal() == wxID_OK)    
-m_pageSetupDialogData = pageSetupDialog.GetPageSetupData();
+m_pageSetupDialogData = pageSetupDialog.GetPageSetupData();*/
 }
 
 void LeftPanel::Adding (wxCommandEvent& event)
@@ -556,20 +679,507 @@ void myDialog::CancelDialog(wxCommandEvent& event)
     Close();
 }
 
-bool MyPrintout::OnPrintPage(int pageNum)
+// ----------------------------------------------------------------------------
+// MyPrintout
+// ----------------------------------------------------------------------------
+
+bool MyPrintout::OnPrintPage(int page)
 {
-    /*wxDC *ptr = GetDC();
-    if(ptr == NULL || !ptr->IsOk())
+    wxDC* dc = GetDC();
+    if (dc)
+    {
+        /*if (page == 1)
+            DrawPageOne();
+        else if (page == 2)
+            DrawPageTwo();*/
+
+        // Draw page numbers at top left corner of printable area, sized so that
+        // screen size of text matches paper size.
+        MapScreenSizeToPage();
+
+        dc->DrawText(wxString::Format("PAGE %d", page), 0, 0);
+
+        long x = 100, y= 100;
+        wxCoord wordWidth, wordHeight;
+        //dc->DrawRectangle(300, 300, 100, 100);
+        //dc->DrawText ("andrew", 200, 200);
+
+
+        
+        if(!m_frame->leftPanel->vector.empty())
+        {
+            dc->DrawLine(x-10, y-30, x+500, y-30);
+            dc->DrawLine(x-10, y-30, x-10, y);
+            dc->DrawLine(x+40, y-30, x+40, y);
+            dc->DrawLine(x+190, y-30, x+190, y);
+            dc->DrawLine(x+290, y-30, x+290, y);
+            dc->DrawLine(x+390, y-30, x+390, y);
+            dc->DrawLine(x+500, y-30, x+500, y);
+            dc->DrawText(m_frame->leftPanel->m_nameColumn1, x, y-30);
+            dc->DrawText(m_frame->leftPanel->m_nameColumn2, x+50, y-30);
+            dc->DrawText(m_frame->leftPanel->m_nameColumn3, x+200, y-30);
+            dc->DrawText(m_frame->leftPanel->m_nameColumn4, x+300, y-30);
+            dc->DrawText(m_frame->leftPanel->m_nameColumn5, x+400, y-30);
+            for (unsigned int i = 0; i < m_frame->leftPanel->vector.size(); ++i)
+            {
+            //    wxString word = m_frame->leftPanel->listCtrl->GetItemText(0,1);
+        //word.Remove( word.Len()-1, 1 );
+        //dc->GetTextExtent(word, &wordWidth, &wordHeight);
+        //dc->DrawRectangle(x, y, wordWidth, wordHeight);
+        //dc->GetTextExtent(words[i], &wordWidth, &wordHeight);
+                dc->DrawLine(x-10, y+30*i, x+500, y+30*i);
+                dc->DrawLine(x-10, y+30*i, x-10, y+30*(i+1));
+                dc->DrawLine(x+40, y+30*i, x+40, y+30*(i+1));
+                dc->DrawLine(x+190, y+30*i, x+190, y+30*(i+1));
+                dc->DrawLine(x+290, y+30*i, x+290, y+30*(i+1));
+                dc->DrawLine(x+390, y+30*i, x+390, y+30*(i+1));
+                dc->DrawLine(x+500, y+30*i, x+500, y+30*(i+1));
+                dc->DrawText(m_frame->leftPanel->listCtrl->GetItemText(i, 0), x, y+30*i);
+                dc->DrawText(m_frame->leftPanel->listCtrl->GetItemText(i, 1), x+50, y+30*i);
+                dc->DrawText(m_frame->leftPanel->listCtrl->GetItemText(i, 2), x+200, y+30*i);
+                dc->DrawText(m_frame->leftPanel->listCtrl->GetItemText(i, 3), x+300, y+30*i);
+                dc->DrawText(m_frame->leftPanel->listCtrl->GetItemText(i, 4), x+400, y+30*i);
+            }
+            dc->DrawLine(x-10, y+30*(m_frame->leftPanel->vector.size()), x+500, y+30*(m_frame->leftPanel->vector.size()));
+            dc->DrawText(m_frame->leftPanel->m_nameColumn6, x + 400, y + 30*(m_frame->leftPanel->vector.size()+1));
+            dc->DrawText(m_frame->leftPanel->listCtrltotal->GetItemText(0, 0), x + 400, y + 30*(m_frame->leftPanel->vector.size()+2));
+
+        }
+
+        return true;
+    }
+    else
     {
         return false;
     }
-    wxDC &dc = *ptr;
-    dc.Clear();
-    dc.SetMapMode(wxMM_POINTS);*/
+}
+
+bool MyPrintout::OnBeginDocument(int startPage, int endPage)
+{
+    if (!wxPrintout::OnBeginDocument(startPage, endPage))
+        return false;
+
     return true;
+}
+
+void MyPrintout::GetPageInfo(int *minPage, int *maxPage, int *selPageFrom, int *selPageTo)
+{
+    *minPage = 1;
+    *maxPage = 2;
+    *selPageFrom = 1;
+    *selPageTo = 2;
+
+    // check if the user just wants to print the current page and if so,
+    // we say, that page 1 is the current page in this example.
+    /*if (m_printDlgData->GetCurrentPage())
+    {
+        *selPageFrom = 1;
+        *selPageTo = 1;
+    }
+    else if (m_printDlgData->GetSelection())
+    {
+        // if the user wants to print the selection, we could set the range via
+        // selPageFrom and selPageTo, but if the pages are not consecutive, we
+        // set selPageFrom and selPageTo to the maximum range and we use
+        // IsPageSelected() to tell the printing system which page is selected.
+
+        // in our example below, only page 2 is selected.
+    }*/
 }
 
 bool MyPrintout::HasPage(int pageNum)
 {
+    return (pageNum == 1 || pageNum == 2);
+}
+
+bool MyPrintout::IsPageSelected(int pageNum)
+{
+    // to demonstrate selection, we just simulate selection of page 2
+    return pageNum == 2;
+}
+
+void MyPrintout::DrawPageOne()
+{
+    wxDC* dc = GetDC();
+
+ // Get the logical pixels per inch of screen and printer
+    int ppiScreenX, ppiScreenY;
+    GetPPIScreen(&ppiScreenX, &ppiScreenY);
+    int ppiPrinterX, ppiPrinterY;
+    GetPPIPrinter(&ppiPrinterX, &ppiPrinterY);
+
+    // This scales the DC so that the printout roughly represents the screen
+    // scaling. The text point size _should_ be the right size but in fact is
+    // too small for some reason. This is a detail that will need to be
+    // addressed at some point but can be fudged for the moment.
+    double scale = double(ppiPrinterX) / ppiScreenX;
+
+    // Now we have to check in case our real page size is reduced (e.g. because
+    // we're drawing to a print preview memory DC)
+    int pageWidth, pageHeight;
+    int w, h;
+    dc->GetSize(&w, &h);
+    GetPageSizePixels(&pageWidth, &pageHeight);
+
+    // If printer pageWidth == current DC width, then this doesn't change. But w
+    // might be the preview bitmap width, so scale down.
+    double overallScale = scale * w / pageWidth;
+    dc->SetUserScale(overallScale, overallScale);
+
+     // Draw 50 mm by 50 mm L shape
+    double logUnitsFactor = ppiPrinterX / (scale * 25.4);
+    int logUnits = int(50 * logUnitsFactor);
+    dc->SetPen(* wxBLACK_PEN);
+    dc->DrawLine(50, 250, 50 + logUnits, 250);
+    dc->DrawLine(50, 250, 50, 250 + logUnits);
+
+    long x = 200, y= 250;
+
+    dc->SetFont(wxFontInfo(15).Family(wxFONTFAMILY_SWISS));
+
+    /*wxCoord maxX = GetDC()->FromDIP(710);
+    wxCoord maxY = GetDC()->FromDIP(340);
+
+    FitThisSizeToPageMargins(wxSize(maxX, maxY), *g_pageSetupData);
+    wxRect fitRect = GetLogicalPageMarginsRect(*g_pageSetupData);*/
+
+    dc->SetBackgroundMode(wxBRUSHSTYLE_TRANSPARENT);
+    dc->SetBrush(*wxTRANSPARENT_BRUSH);
+
+
+    wxCoord wordWidth, wordHeight;
+    wxString word = m_frame->leftPanel->listCtrl->GetItemText(0,1);
+    word.Remove( word.Len()-1, 1 );
+            dc->GetTextExtent(word, &wordWidth, &wordHeight);
+            dc->DrawRectangle(x, y, wordWidth, wordHeight);
+            //dc->GetTextExtent(words[i], &wordWidth, &wordHeight);
+            dc->DrawText(word, x, y);
+
+
+    //dc->GetTextExtent(m_frame->leftPanel->listCtrl->GetItemText(0,1));
+    //dc->DrawText(m_frame->leftPanel->listCtrl->GetItemText(0,1), wxPoint(0,0));
+    //wxMemoryDC mdc(dc);
+/*
+    // You might use THIS code if you were scaling graphics of known size to fit
+    // on the page. The commented-out code illustrates different ways of scaling
+    // the graphics.
+
+    // We know the graphic is 230x350. If we didn't know this, we'd need to
+    // calculate it.
+    wxCoord maxX = GetDC()->FromDIP(230);
+    wxCoord maxY = GetDC()->FromDIP(350);
+
+    // This sets the user scale and origin of the DC so that the image fits
+    // within the paper rectangle (but the edges could be cut off by printers
+    // that can't print to the edges of the paper -- which is most of them. Use
+    // this if your image already has its own margins.
+//    FitThisSizeToPaper(wxSize(maxX, maxY));
+//    wxRect fitRect = GetLogicalPaperRect();
+
+    // This sets the user scale and origin of the DC so that the image fits
+    // within the page rectangle, which is the printable area on Mac and MSW
+    // and is the entire page on other platforms.
+//    FitThisSizeToPage(wxSize(maxX, maxY));
+//    wxRect fitRect = GetLogicalPageRect();
+
+    // This sets the user scale and origin of the DC so that the image fits
+    // within the page margins as specified by g_PageSetupData, which you can
+    // change (on some platforms, at least) in the Page Setup dialog. Note that
+    // on Mac, the native Page Setup dialog doesn't let you change the margins
+    // of a wxPageSetupDialogData object, so you'll have to write your own dialog or
+    // use the Mac-only wxMacPageMarginsDialog, as we do in this program.
+    FitThisSizeToPageMargins(wxSize(maxX, maxY), *g_pageSetupData);
+    wxRect fitRect = GetLogicalPageMarginsRect(*g_pageSetupData);
+
+    // This sets the user scale and origin of the DC so that the image appears
+    // on the paper at the same size that it appears on screen (i.e., 10-point
+    // type on screen is 10-point on the printed page) and is positioned in the
+    // top left corner of the page rectangle (just as the screen image appears
+    // in the top left corner of the window).
+//    MapScreenSizeToPage();
+//    wxRect fitRect = GetLogicalPageRect();
+
+    // You could also map the screen image to the entire paper at the same size
+    // as it appears on screen.
+//    MapScreenSizeToPaper();
+//    wxRect fitRect = GetLogicalPaperRect();
+
+    // You might also wish to do you own scaling in order to draw objects at
+    // full native device resolution. In this case, you should do the following.
+    // Note that you can use the GetLogicalXXXRect() commands to obtain the
+    // appropriate rect to scale to.
+//    MapScreenSizeToDevice();
+//    wxRect fitRect = GetLogicalPageRect();
+
+    // Each of the preceding Fit or Map routines positions the origin so that
+    // the drawn image is positioned at the top left corner of the reference
+    // rectangle. You can easily center or right- or bottom-justify the image as
+    // follows.
+
+    // This offsets the image so that it is centered within the reference
+    // rectangle defined above.
+    wxCoord xoff = (fitRect.width - maxX) / 2;
+    wxCoord yoff = (fitRect.height - maxY) / 2;
+    OffsetLogicalOrigin(xoff, yoff);
+
+    // This offsets the image so that it is positioned at the bottom right of
+    // the reference rectangle defined above.
+//    wxCoord xoff = (fitRect.width - maxX);
+//    wxCoord yoff = (fitRect.height - maxY);
+//    OffsetLogicalOrigin(xoff, yoff);*/
+
+//   wxGetApp().Draw(*GetDC());
+}
+
+void MyPrintout::DrawPageTwo()
+{
+ /*   // You might use THIS code to set the printer DC to ROUGHLY reflect
+    // the screen text size. This page also draws lines of actual length
+    // 5cm on the page.
+
+    // Compare this to DrawPageOne(), which uses the really convenient routines
+    // from wxPrintout to fit the screen image onto the printed page. This page
+    // illustrates how to do all the scaling calculations yourself, if you're so
+    // inclined.
+
+    wxDC *dc = GetDC();
+
+    // Get the logical pixels per inch of screen and printer
+    int ppiScreenX, ppiScreenY;
+    GetPPIScreen(&ppiScreenX, &ppiScreenY);
+    int ppiPrinterX, ppiPrinterY;
+    GetPPIPrinter(&ppiPrinterX, &ppiPrinterY);
+
+    // This scales the DC so that the printout roughly represents the screen
+    // scaling. The text point size _should_ be the right size but in fact is
+    // too small for some reason. This is a detail that will need to be
+    // addressed at some point but can be fudged for the moment.
+    double scale = double(ppiPrinterX) / ppiScreenX;
+
+    // Now we have to check in case our real page size is reduced (e.g. because
+    // we're drawing to a print preview memory DC)
+    int pageWidth, pageHeight;
+    int w, h;
+    dc->GetSize(&w, &h);
+    GetPageSizePixels(&pageWidth, &pageHeight);
+
+    // If printer pageWidth == current DC width, then this doesn't change. But w
+    // might be the preview bitmap width, so scale down.
+    double overallScale = scale * w / pageWidth;
+    dc->SetUserScale(overallScale, overallScale);
+
+    // Calculate conversion factor for converting millimetres into logical
+    // units. There are approx. 25.4 mm to the inch. There are ppi device units
+    // to the inch. Therefore 1 mm corresponds to ppi/25.4 device units. We also
+    // divide by the screen-to-printer scaling factor, because we need to
+    // unscale to pass logical units to DrawLine.
+
+    // Draw 50 mm by 50 mm L shape
+    double logUnitsFactor = ppiPrinterX / (scale * 25.4);
+    int logUnits = int(50 * logUnitsFactor);
+    dc->SetPen(* wxBLACK_PEN);
+    dc->DrawLine(50, 250, 50 + logUnits, 250);
+    dc->DrawLine(50, 250, 50, 250 + logUnits);
+
+    dc->SetBackgroundMode(wxBRUSHSTYLE_TRANSPARENT);
+    dc->SetBrush(*wxTRANSPARENT_BRUSH);
+
+    {  //GetTextExtent demo:
+        wxString words[7] = { "This ", "is ", "GetTextExtent ",
+                             "testing ", "string. ", "Enjoy ", "it!" };
+        long x = 200, y= 250;
+
+        dc->SetFont(wxFontInfo(15).Family(wxFONTFAMILY_SWISS));
+
+        for (int i = 0; i < 7; i++)
+        {
+            wxCoord wordWidth, wordHeight;
+            wxString word = words[i];
+            word.Remove( word.Len()-1, 1 );
+            dc->GetTextExtent(word, &wordWidth, &wordHeight);
+            dc->DrawRectangle(x, y, wordWidth, wordHeight);
+            dc->GetTextExtent(words[i], &wordWidth, &wordHeight);
+            dc->DrawText(words[i], x, y);
+            x += wordWidth;
+        }
+
+    }
+
+    //dc->SetFont(wxGetApp().GetTestFont());
+
+    dc->DrawText("Some test text", 200, 300 );
+
+    // TESTING
+
+    int leftMargin = 20;
+    int rightMargin = 20;
+    int topMargin = 20;
+    int bottomMargin = 20;
+
+    int pageWidthMM, pageHeightMM;
+    GetPageSizeMM(&pageWidthMM, &pageHeightMM);
+
+    int leftMarginLogical = int(logUnitsFactor * leftMargin);
+    int topMarginLogical = int(logUnitsFactor * topMargin);
+    int bottomMarginLogical = int(logUnitsFactor * (pageHeightMM - bottomMargin));
+    int rightMarginLogical = int(logUnitsFactor * (pageWidthMM - rightMargin));
+
+    dc->SetPen(* wxRED_PEN);
+    dc->DrawLine(leftMarginLogical, topMarginLogical,
+        rightMarginLogical, topMarginLogical);
+    dc->DrawLine(leftMarginLogical, bottomMarginLogical,
+        rightMarginLogical, bottomMarginLogical);
+
+    WritePageHeader(this, dc, "A header", logUnitsFactor);*/
+}
+
+// Writes a header on a page. Margin units are in millimetres.
+bool MyPrintout::WritePageHeader(wxPrintout *printout, wxDC *dc, const wxString&text, double mmToLogical)
+{
+    int pageWidthMM, pageHeightMM;
+
+    printout->GetPageSizeMM(&pageWidthMM, &pageHeightMM);
+    wxUnusedVar(pageHeightMM);
+
+    int leftMargin = 10;
+    int topMargin = 10;
+    int rightMargin = 10;
+
+    int leftMarginLogical = int(mmToLogical * leftMargin);
+    int topMarginLogical = int(mmToLogical * topMargin);
+    int rightMarginLogical = int(mmToLogical * (pageWidthMM - rightMargin));
+
+    wxCoord xExtent, yExtent;
+    dc->GetTextExtent(text, &xExtent, &yExtent);
+
+    int xPos = int(((((pageWidthMM - leftMargin - rightMargin) / 2.0) + leftMargin) * mmToLogical) - (xExtent / 2.0));
+    dc->DrawText(text, xPos, topMarginLogical);
+
+    dc->SetPen(* wxBLACK_PEN);
+    dc->DrawLine(leftMarginLogical, topMarginLogical + yExtent,
+                 rightMarginLogical, topMarginLogical + yExtent);
+
     return true;
 }
+
+/*void MyApp::Draw(wxDC&dc)
+{
+    // This routine just draws a bunch of random stuff on the screen so that we
+    // can check that different types of object are being drawn consistently
+    // between the screen image, the print preview image (at various zoom
+    // levels), and the printed page.
+    dc.SetBackground(*wxWHITE_BRUSH);
+    // dc.Clear();
+    dc.SetFont(m_testFont);
+
+    // dc.SetBackgroundMode(wxBRUSHSTYLE_TRANSPARENT);
+
+    dc.SetPen(*wxBLACK_PEN);
+    dc.SetBrush(*wxLIGHT_GREY_BRUSH);
+
+    dc.DrawRectangle(0, 0, dc.FromDIP(230), dc.FromDIP(350));
+    dc.DrawLine(0, 0, dc.FromDIP(229), dc.FromDIP(349));
+    dc.DrawLine(dc.FromDIP(229), 0, 0, dc.FromDIP(349));
+    dc.SetBrush(*wxTRANSPARENT_BRUSH);
+
+    dc.SetBrush(*wxCYAN_BRUSH);
+    dc.SetPen(*wxRED_PEN);
+
+    dc.DrawRoundedRectangle(0, dc.FromDIP(20), dc.FromDIP(200), dc.FromDIP(80), 20);
+
+    dc.DrawText( "Rectangle 200 by 80", dc.FromDIP(40), dc.FromDIP(40));
+
+    dc.SetPen( wxPen(*wxBLACK, 0, wxPENSTYLE_DOT_DASH) );
+    dc.DrawEllipse(dc.FromDIP(50), dc.FromDIP(140), dc.FromDIP(100), dc.FromDIP(50));
+    dc.SetPen(*wxRED_PEN);
+
+    dc.DrawText( "Test message: this is in 10 point text", dc.FromDIP(10), dc.FromDIP(180));
+
+    dc.DrawRotatedText( "This\nis\na multi-line\ntext", dc.FromDIP(170), dc.FromDIP(100), -m_angle/1.5);
+
+    const char *test = "Hebrew    שלום -- Japanese (日本語)";
+    wxString tmp = wxConvUTF8.cMB2WC( test );
+    dc.DrawText( tmp, dc.FromDIP(10), dc.FromDIP(200) );
+
+    wxPoint points[5];
+    points[0].x = 0;
+    points[0].y = 0;
+    points[1].x = dc.FromDIP(20);
+    points[1].y = 0;
+    points[2].x = dc.FromDIP(20);
+    points[2].y = dc.FromDIP(20);
+    points[3].x = dc.FromDIP(10);
+    points[3].y = dc.FromDIP(20);
+    points[4].x = dc.FromDIP(10);
+    points[4].y = dc.FromDIP(-20);
+    dc.DrawPolygon( 5, points, dc.FromDIP(20), dc.FromDIP(250), wxODDEVEN_RULE );
+    dc.DrawPolygon( 5, points, dc.FromDIP(50), dc.FromDIP(250), wxWINDING_RULE );
+
+    dc.DrawArc( dc.FromDIP(20), dc.FromDIP(330), dc.FromDIP(40), dc.FromDIP(300), dc.FromDIP(20), dc.FromDIP(300) );
+    {
+        wxDCBrushChanger changeBrush(dc, *wxTRANSPARENT_BRUSH);
+        dc.DrawArc( dc.FromDIP(60), dc.FromDIP(330), dc.FromDIP(80), dc.FromDIP(300), dc.FromDIP(60), dc.FromDIP(300) );
+    }
+
+
+    dc.DrawEllipticArc( dc.FromDIP(80), dc.FromDIP(250), dc.FromDIP(60), dc.FromDIP(30), 0.0, 270.0 );
+
+    points[0].x = dc.FromDIP(150);
+    points[0].y = dc.FromDIP(250);
+    points[1].x = dc.FromDIP(180);
+    points[1].y = dc.FromDIP(250);
+    points[2].x = dc.FromDIP(180);
+    points[2].y = dc.FromDIP(220);
+    points[3].x = dc.FromDIP(200);
+    points[3].y = dc.FromDIP(220);
+    dc.DrawSpline( 4, points );
+
+    wxString str;
+    int i = 0;
+    str.Printf( "---- Text at angle %d ----", i );
+    dc.DrawRotatedText( str, dc.FromDIP(100), dc.FromDIP(300), i );
+
+    i = m_angle;
+    str.Printf( "---- Text at angle %d ----", i );
+    dc.DrawRotatedText( str, dc.FromDIP(100), dc.FromDIP(300), i );
+
+    wxIcon my_icon = wxICON(sample);
+
+    dc.DrawIcon( my_icon, dc.FromDIP(100), dc.FromDIP(100));
+
+    if (m_bitmap.IsOk())
+        dc.DrawBitmap( m_bitmap, dc.FromDIP(10), dc.FromDIP(10) );
+
+#if wxUSE_GRAPHICS_CONTEXT
+    std::unique_ptr<wxGraphicsContext> gc(wxGraphicsContext::CreateFromUnknownDC(dc));
+
+    if (gc)
+    {
+        // make a path that contains a circle and some lines, centered at 100,100
+        gc->SetPen( *wxRED_PEN );
+
+        wxGraphicsPath path = gc->CreatePath();
+        path.AddCircle( gc->FromDIP(50.0), gc->FromDIP(50.0), gc->FromDIP(50.0) );
+        path.MoveToPoint(gc->FromDIP(0.0), gc->FromDIP(50.0));
+        path.AddLineToPoint(gc->FromDIP(100.0), gc->FromDIP(50.0));
+        path.MoveToPoint(gc->FromDIP(50.0), gc->FromDIP(0.0));
+        path.AddLineToPoint(gc->FromDIP(50.0), gc->FromDIP(100.0) );
+        path.CloseSubpath();
+        path.AddRectangle(gc->FromDIP(25.0), gc->FromDIP(25.0), gc->FromDIP(50.0), gc->FromDIP(50.0));
+
+        gc->StrokePath(path);
+
+        // draw some text
+        wxString text("Text by wxGraphicsContext");
+        gc->SetFont( m_testFont, *wxBLACK );
+        gc->DrawText(text, gc->FromDIP(25.0), gc->FromDIP(60.0));
+
+        // draw rectangle around the text
+        double w, h;
+        gc->GetTextExtent(text, &w, &h);
+        gc->SetPen( *wxBLACK_PEN );
+        gc->DrawRectangle(gc->FromDIP(25.0), gc->FromDIP(60.0), w, h);
+    }
+#endif
+
+}*/
