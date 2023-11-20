@@ -710,6 +710,10 @@ bool MyPrintout::OnPrintPage(int page)
         //dc->DrawText ("andrew", 200, 200);
 
         dc->DrawText("List of products " + wxDateTime::Now().Format(), x-10, y-60);
+
+        dc->DrawText(wxString::Format(wxT("%d"), dc->GetSize().GetHeight()), x-10, y+600);
+        dc->DrawText(wxString::Format(wxT("%d"), GetLogicalPaperRect().GetSize().GetHeight()), x-10, y+650);
+
         
         if(!m_frame->leftPanel->vector.empty())
         {
@@ -792,9 +796,9 @@ void MyPrintout::GetPageInfo(int *minPage, int *maxPage, int *selPageFrom, int *
     }*/
 }
 
-bool MyPrintout::HasPage(int pageNum)
+bool MyPrintout::HasPage(int page)
 {
-    return (pageNum == 1 || pageNum == 2);
+    return (page == 1 || page == 2);
 }
 
 bool MyPrintout::IsPageSelected(int pageNum)
