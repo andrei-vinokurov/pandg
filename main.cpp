@@ -161,14 +161,16 @@ public:
         m_printDlgData = printDlgData;
     }
 
+    virtual void OnPreparePrinting () override;
     virtual bool OnPrintPage(int page) override;
-    virtual bool HasPage(int page) override;
+    virtual bool HasPage(int pageNum) override;
     virtual bool OnBeginDocument(int startPage, int endPage) override;
     virtual void GetPageInfo(int *minPage, int *maxPage, int *selPageFrom, int *selPageTo) override;
-    bool IsPageSelected(int pageNum);
+    //bool IsPageSelected(int pageNum);
+    
 
-    void DrawPageOne();
-    void DrawPageTwo();
+    //void DrawPageOne();
+    //void DrawPageTwo();
 
     // Writes a header on a page. Margin units are in millimetres.
     bool WritePageHeader(wxPrintout *printout, wxDC *dc, const wxString& text, double mmToLogical);
@@ -177,6 +179,7 @@ public:
 private:
     MyFrame* m_frame;
     wxPrintDialogData* m_printDlgData;
+    int m_numPages;
 
 };
 
@@ -684,6 +687,36 @@ void myDialog::CancelDialog(wxCommandEvent& event)
 // MyPrintout
 // ----------------------------------------------------------------------------
 
+void MyPrintout::OnPreparePrinting()
+{
+    wxDC* dc = GetDC();
+    long x = 100, y= 100;
+
+    int dcHeight;
+    if(!m_frame->leftPanel->vector.empty())
+    {
+        dcHeight = 30*(m_frame->leftPanel->vector.size()+2);
+    }
+    else
+    {
+        dcHeight = 500;
+    }
+    dc->SetClippingRegion (0, 0, 700, dcHeight);
+
+    /*int ppiScreenX, ppiScreenY;
+    GetPPIScreen(&ppiScreenX, &ppiScreenY);
+    int ppiPrinterX, ppiPrinterY;
+    GetPPIPrinter(&ppiPrinterX, &ppiPrinterY);
+
+    double scale = double(ppiPrinterY) / ppiScreenY; */
+    int pageWidth, pageHeight;
+    int w, h;
+    dc->GetSize(&w, &h);
+    GetPageSizePixels(&pageWidth, &pageHeight);
+    
+    m_numPages =  h / pageHeight + 1;   //scale *
+}
+
 bool MyPrintout::OnPrintPage(int page)
 {
     wxDC* dc = GetDC();
@@ -705,14 +738,16 @@ bool MyPrintout::OnPrintPage(int page)
         dc->DrawText("This program was developed by Andrey Vinokurov", 200, 0);
 
         long x = 100, y= 100;
-        wxCoord wordWidth, wordHeight;
+        //wxCoord wordWidth, wordHeight;
         //dc->DrawRectangle(300, 300, 100, 100);
         //dc->DrawText ("andrew", 200, 200);
 
-        dc->DrawText("List of products " + wxDateTime::Now().Format(), x-10, y-60);
+        dc->DrawText("List of products " + wxDateTime::Now().Format(), x-10, y-60);    
 
-        dc->DrawText(wxString::Format(wxT("%d"), dc->GetSize().GetHeight()), x-10, y+600);
-        dc->DrawText(wxString::Format(wxT("%d"), GetLogicalPaperRect().GetSize().GetHeight()), x-10, y+650);
+        dc->DrawText(wxString::Format(wxT("%d"), m_numPages), x-10, y+600);
+        
+        //dc->DrawText(wxString::Format(wxT("%d"), dc->GetSize().GetHeight()), x-10, y+600);
+        //dc->DrawText(wxString::Format(wxT("%d"), GetLogicalPaperRect().GetSize().GetHeight()), x-10, y+650);
 
         
         if(!m_frame->leftPanel->vector.empty())
@@ -774,9 +809,9 @@ bool MyPrintout::OnBeginDocument(int startPage, int endPage)
 void MyPrintout::GetPageInfo(int *minPage, int *maxPage, int *selPageFrom, int *selPageTo)
 {
     *minPage = 1;
-    *maxPage = 2;
+    *maxPage = m_numPages;
     *selPageFrom = 1;
-    *selPageTo = 2;
+    *selPageTo = m_numPages;
 
     // check if the user just wants to print the current page and if so,
     // we say, that page 1 is the current page in this example.
@@ -796,18 +831,18 @@ void MyPrintout::GetPageInfo(int *minPage, int *maxPage, int *selPageFrom, int *
     }*/
 }
 
-bool MyPrintout::HasPage(int page)
+bool MyPrintout::HasPage(int pageNum)
 {
-    return (page == 1 || page == 2);
+    return (pageNum >= 1 && pageNum <= m_numPages);
 }
 
-bool MyPrintout::IsPageSelected(int pageNum)
+/*bool MyPrintout::IsPageSelected(int pageNum)
 {
     // to demonstrate selection, we just simulate selection of page 2
     return pageNum == 2;
-}
+}*/
 
-void MyPrintout::DrawPageOne()
+/*void MyPrintout::DrawPageOne()
 {
     wxDC* dc = GetDC();
 
@@ -846,11 +881,11 @@ void MyPrintout::DrawPageOne()
 
     dc->SetFont(wxFontInfo(15).Family(wxFONTFAMILY_SWISS));
 
-    /*wxCoord maxX = GetDC()->FromDIP(710);
+    wxCoord maxX = GetDC()->FromDIP(710);
     wxCoord maxY = GetDC()->FromDIP(340);
 
     FitThisSizeToPageMargins(wxSize(maxX, maxY), *g_pageSetupData);
-    wxRect fitRect = GetLogicalPageMarginsRect(*g_pageSetupData);*/
+    wxRect fitRect = GetLogicalPageMarginsRect(*g_pageSetupData);
 
     dc->SetBackgroundMode(wxBRUSHSTYLE_TRANSPARENT);
     dc->SetBrush(*wxTRANSPARENT_BRUSH);
@@ -864,7 +899,7 @@ void MyPrintout::DrawPageOne()
             //dc->GetTextExtent(words[i], &wordWidth, &wordHeight);
             dc->DrawText(word, x, y);
 
-
+*/
     //dc->GetTextExtent(m_frame->leftPanel->listCtrl->GetItemText(0,1));
     //dc->DrawText(m_frame->leftPanel->listCtrl->GetItemText(0,1), wxPoint(0,0));
     //wxMemoryDC mdc(dc);
@@ -938,10 +973,10 @@ void MyPrintout::DrawPageOne()
 //    OffsetLogicalOrigin(xoff, yoff);*/
 
 //   wxGetApp().Draw(*GetDC());
-}
+//}
 
-void MyPrintout::DrawPageTwo()
-{
+//void MyPrintout::DrawPageTwo()
+//{
  /*   // You might use THIS code to set the printer DC to ROUGHLY reflect
     // the screen text size. This page also draws lines of actual length
     // 5cm on the page.
@@ -1040,7 +1075,7 @@ void MyPrintout::DrawPageTwo()
         rightMarginLogical, bottomMarginLogical);
 
     WritePageHeader(this, dc, "A header", logUnitsFactor);*/
-}
+//}
 
 // Writes a header on a page. Margin units are in millimetres.
 bool MyPrintout::WritePageHeader(wxPrintout *printout, wxDC *dc, const wxString&text, double mmToLogical)
