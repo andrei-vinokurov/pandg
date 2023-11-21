@@ -690,31 +690,56 @@ void myDialog::CancelDialog(wxCommandEvent& event)
 void MyPrintout::OnPreparePrinting()
 {
     wxDC* dc = GetDC();
-    long x = 100, y= 100;
+    //long x = 100, y= 100;
 
-    int dcHeight;
+    /*int dcHeight;
     if(!m_frame->leftPanel->vector.empty())
     {
         dcHeight = 30*(m_frame->leftPanel->vector.size()+2);
     }
     else
     {
-        dcHeight = 500;
-    }
-    dc->SetClippingRegion (0, 0, 700, dcHeight);
+        dcHeight = 800;
+    }*/
+    //dc->SetClippingRegion (0, 0, 700, dcHeight);
 
-    /*int ppiScreenX, ppiScreenY;
+    int ppiScreenX, ppiScreenY;
     GetPPIScreen(&ppiScreenX, &ppiScreenY);
     int ppiPrinterX, ppiPrinterY;
     GetPPIPrinter(&ppiPrinterX, &ppiPrinterY);
 
-    double scale = double(ppiPrinterY) / ppiScreenY; */
+    double scale = double(ppiPrinterY) / ppiScreenY;
     int pageWidth, pageHeight;
-    int w, h;
-    dc->GetSize(&w, &h);
+    //int w, h;
+    //dc->GetSize(&w, &h);
     GetPageSizePixels(&pageWidth, &pageHeight);
     
-    m_numPages =  h / pageHeight + 1;   //scale *
+    int dcHeight;
+
+    //dc->SetClippingRegion (0, 0, pageWidth, dcHeight);
+
+    if(!m_frame->leftPanel->vector.empty())
+    {
+        //dcHeight = 30*(m_frame->leftPanel->vector.size()+2);
+        m_numPages = (1015 + scale * (30*(m_frame->leftPanel->vector.size()))) / pageHeight + 1;
+        dcHeight = m_numPages * pageHeight;
+    }
+    else
+    {
+        dcHeight = pageHeight;
+        m_numPages = 1;
+    }
+
+    dc->SetClippingRegion (0, 0, pageWidth, dcHeight);
+
+    //dc->DrawText("height = " + wxString::Format(wxT("%d"), pageHeight), 100, 750);
+    //dc->DrawText("scale = " + wxString::Format(wxT("%.2f"), scale), 100, 1500);
+    //dc->DrawText("height - = " + wxString::Format(wxT("%.2f"), pageHeight - scale*30*32), 100, 2250);
+
+
+
+    
+    //m_numPages = dcHeight / pageHeight + 1;  //scale *
 }
 
 bool MyPrintout::OnPrintPage(int page)
@@ -742,7 +767,9 @@ bool MyPrintout::OnPrintPage(int page)
         //dc->DrawRectangle(300, 300, 100, 100);
         //dc->DrawText ("andrew", 200, 200);
 
-        dc->DrawText("List of products " + wxDateTime::Now().Format(), x-10, y-60);    
+        wxString today = wxDateTime::Today().Format();
+        today.erase(8, 9);
+        dc->DrawText("List of products " + today, x-10, y-60);    
 
         dc->DrawText(wxString::Format(wxT("%d"), m_numPages), x-10, y+600);
         
