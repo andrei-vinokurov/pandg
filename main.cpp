@@ -722,13 +722,13 @@ void MyPrintout::OnPreparePrinting()
     {
         //dcHeight = 30*(m_frame->leftPanel->vector.size()+2);
         m_numPages = (1015 + scale * (30*(m_frame->leftPanel->vector.size()))) / pageHeight + 1;
-        dcHeight = m_numPages * pageHeight;
     }
     else
     {
-        dcHeight = pageHeight;
         m_numPages = 1;
     }
+
+    dcHeight = m_numPages * pageHeight;
 
     dc->SetClippingRegion (0, 0, pageWidth, dcHeight);
 
@@ -771,7 +771,7 @@ bool MyPrintout::OnPrintPage(int page)
         today.erase(8, 9);
         dc->DrawText("List of products " + today, x-10, y-60);    
 
-        dc->DrawText(wxString::Format(wxT("%d"), m_numPages), x-10, y+600);
+        //dc->DrawText(wxString::Format(wxT("%d"), m_numPages), x-10, y+600);
         
         //dc->DrawText(wxString::Format(wxT("%d"), dc->GetSize().GetHeight()), x-10, y+600);
         //dc->DrawText(wxString::Format(wxT("%d"), GetLogicalPaperRect().GetSize().GetHeight()), x-10, y+650);
@@ -791,6 +791,9 @@ bool MyPrintout::OnPrintPage(int page)
             dc->DrawText(m_frame->leftPanel->m_nameColumn3, x+200, y-30);
             dc->DrawText(m_frame->leftPanel->m_nameColumn4, x+300, y-30);
             dc->DrawText(m_frame->leftPanel->m_nameColumn5, x+400, y-30);
+            for (unsigned int j = 0; j < m_numPages; ++j)
+            {
+            
             for (unsigned int i = 0; i < m_frame->leftPanel->vector.size(); ++i)
             {
             //    wxString word = m_frame->leftPanel->listCtrl->GetItemText(0,1);
@@ -798,6 +801,10 @@ bool MyPrintout::OnPrintPage(int page)
         //dc->GetTextExtent(word, &wordWidth, &wordHeight);
         //dc->DrawRectangle(x, y, wordWidth, wordHeight);
         //dc->GetTextExtent(words[i], &wordWidth, &wordHeight);
+        /*    if(i % 30 == 1)
+            {
+                ++page;
+            }*/
                 dc->DrawLine(x-10, y+30*i, x+500, y+30*i);
                 dc->DrawLine(x-10, y+30*i, x-10, y+30*(i+1));
                 dc->DrawLine(x+40, y+30*i, x+40, y+30*(i+1));
@@ -814,6 +821,8 @@ bool MyPrintout::OnPrintPage(int page)
             dc->DrawLine(x-10, y+30*(m_frame->leftPanel->vector.size()), x+500, y+30*(m_frame->leftPanel->vector.size()));
             dc->DrawText(m_frame->leftPanel->m_nameColumn6, x + 400, y + 30*(m_frame->leftPanel->vector.size()+1));
             dc->DrawText(m_frame->leftPanel->listCtrltotal->GetItemText(0, 0), x + 400, y + 30*(m_frame->leftPanel->vector.size()+2));
+
+            }
             
         }
 
