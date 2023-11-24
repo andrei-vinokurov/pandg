@@ -707,30 +707,34 @@ void MyPrintout::OnPreparePrinting()
     GetPPIScreen(&ppiScreenX, &ppiScreenY);
     int ppiPrinterX, ppiPrinterY;
     GetPPIPrinter(&ppiPrinterX, &ppiPrinterY);
-
-    double scale = double(ppiPrinterY) / ppiScreenY;
+    double scale1 = double(ppiPrinterX) / ppiScreenX;
+    double scale2 = double(ppiPrinterY) / ppiScreenY;
     int pageWidth, pageHeight;
-    //int w, h;
-    //dc->GetSize(&w, &h);
+    int w, h;
+    dc->GetSize(&w, &h);
     GetPageSizePixels(&pageWidth, &pageHeight);
     
-    int dcHeight;
+    m_numPages = 2;
+    
+    //m_numPages = (scale1 * (w / pageWidth)) * (scale2 * (h / pageHeight));
+
+    //int dcHeight;
 
     //dc->SetClippingRegion (0, 0, pageWidth, dcHeight);
 
-    if(!m_frame->leftPanel->vector.empty())
-    {
+    //if(!m_frame->leftPanel->vector.empty())
+    //{
         //dcHeight = 30*(m_frame->leftPanel->vector.size()+2);
-        m_numPages = (1015 + scale * (30*(m_frame->leftPanel->vector.size()))) / pageHeight + 1;
-    }
-    else
-    {
-        m_numPages = 1;
-    }
+       // m_numPages = (1015 + scale * (30*(m_frame->leftPanel->vector.size()))) / pageHeight + 1;
+    //}
+    //else
+    //{
+    //    m_numPages = 1;
+    //}
 
-    dcHeight = m_numPages * pageHeight;
+    //int dcHeight = m_numPages * pageHeight;
 
-    dc->SetClippingRegion (0, 0, pageWidth, dcHeight);
+    //dc->SetClippingRegion (0, 0, pageWidth, dcHeight);
 
     //dc->DrawText("height = " + wxString::Format(wxT("%d"), pageHeight), 100, 750);
     //dc->DrawText("scale = " + wxString::Format(wxT("%.2f"), scale), 100, 1500);
@@ -773,8 +777,10 @@ bool MyPrintout::OnPrintPage(int page)
 
         //dc->DrawText(wxString::Format(wxT("%d"), m_numPages), x-10, y+600);
         
-        //dc->DrawText(wxString::Format(wxT("%d"), dc->GetSize().GetHeight()), x-10, y+600);
-        //dc->DrawText(wxString::Format(wxT("%d"), GetLogicalPaperRect().GetSize().GetHeight()), x-10, y+650);
+        dc->DrawText(wxString::Format(wxT("%d"), dc->GetSize().GetHeight()), x-10, y+600);
+        dc->DrawText(wxString::Format(wxT("%d"), dc->GetSizeMM().GetHeight()), x-10, y+650);
+        dc->DrawText(wxString::Format(wxT("%d"), GetLogicalPaperRect().GetSize().GetHeight()), x-10, y+700);
+        dc->DrawText(wxString::Format(wxT("%d"), dc->GetDeviceOrigin().y), x-10, y+800);
 
         
         if(!m_frame->leftPanel->vector.empty())
