@@ -703,19 +703,26 @@ void MyPrintout::OnPreparePrinting()
     }*/
     //dc->SetClippingRegion (0, 0, 700, dcHeight);
 
-    int ppiScreenX, ppiScreenY;
+    /*int ppiScreenX, ppiScreenY;
     GetPPIScreen(&ppiScreenX, &ppiScreenY);
     int ppiPrinterX, ppiPrinterY;
     GetPPIPrinter(&ppiPrinterX, &ppiPrinterY);
-    double scale1 = double(ppiPrinterX) / ppiScreenX;
-    double scale2 = double(ppiPrinterY) / ppiScreenY;
+    //double scale1 = double(ppiPrinterX) / ppiScreenX;
+    double scale = double(ppiPrinterY) / ppiScreenY;
     int pageWidth, pageHeight;
     int w, h;
     dc->GetSize(&w, &h);
-    GetPageSizePixels(&pageWidth, &pageHeight);
+    GetPageSizePixels(&pageWidth, &pageHeight);*/
     
-    m_numPages = 2;
-    
+    if(!m_frame->leftPanel->vector.empty())
+    {
+        m_numPages = m_frame->leftPanel->vector.size();
+    }
+    else
+    {
+        m_numPages = 1;
+    }
+
     //m_numPages = (scale1 * (w / pageWidth)) * (scale2 * (h / pageHeight));
 
     //int dcHeight;
@@ -725,7 +732,9 @@ void MyPrintout::OnPreparePrinting()
     //if(!m_frame->leftPanel->vector.empty())
     //{
         //dcHeight = 30*(m_frame->leftPanel->vector.size()+2);
-       // m_numPages = (1015 + scale * (30*(m_frame->leftPanel->vector.size()))) / pageHeight + 1;
+        //m_numPages = (0 + scale * (30*(m_frame->leftPanel->vector.size()))) / pageHeight + 1;
+
+
     //}
     //else
     //{
@@ -737,13 +746,15 @@ void MyPrintout::OnPreparePrinting()
     //dc->SetClippingRegion (0, 0, pageWidth, dcHeight);
 
     //dc->DrawText("height = " + wxString::Format(wxT("%d"), pageHeight), 100, 750);
-    //dc->DrawText("scale = " + wxString::Format(wxT("%.2f"), scale), 100, 1500);
+    //dc->DrawText("scale = " + wxString::Format(wxT("%.2f"), scale), 300, 500);
     //dc->DrawText("height - = " + wxString::Format(wxT("%.2f"), pageHeight - scale*30*32), 100, 2250);
-
-
-
-    
+ 
     //m_numPages = dcHeight / pageHeight + 1;  //scale *
+    //dc->DrawText("scale = " + wxString::Format(wxT("%d"), pageHeight), 500, 500);
+    
+    //dc->DrawRectangle(50, 50, pageWidth-500, pageHeight-500);
+
+
 }
 
 bool MyPrintout::OnPrintPage(int page)
@@ -751,6 +762,22 @@ bool MyPrintout::OnPrintPage(int page)
     wxDC* dc = GetDC();
     if (dc)
     {
+        
+        /*if (page%2 == 1){
+        
+        int pageWidth, pageHeight;
+
+        GetPageSizePixels(&pageWidth, &pageHeight);
+        
+        dc->DrawRectangle(50, 50, pageWidth-500, pageHeight-500);
+        }*/
+        //int pageWidth, pageHeight;
+        //GetPageSizePixels(&pageWidth, &pageHeight);
+        //for (unsigned int j = 0; j < m_numPages; ++j)
+          //  {
+               // dc->SetClippingRegion (0, (pageHeight * (page-1)), pageWidth, (pageHeight * page));
+            //}     
+        
         /*if (page == 1)
             DrawPageOne();
         else if (page == 2)
@@ -758,7 +785,8 @@ bool MyPrintout::OnPrintPage(int page)
 
         // Draw page numbers at top left corner of printable area, sized so that
         // screen size of text matches paper size.
-        MapScreenSizeToPage();
+        //MapScreenSizeToPage();
+        MapScreenSizeToPaper();
 
         dc->DrawIcon(wxICON(icon_frame), 5, 5);
 
@@ -783,7 +811,7 @@ bool MyPrintout::OnPrintPage(int page)
         dc->DrawText(wxString::Format(wxT("%d"), dc->GetDeviceOrigin().y), x-10, y+800);
 
         
-        if(!m_frame->leftPanel->vector.empty())
+      /*  if(!m_frame->leftPanel->vector.empty())
         {
             dc->DrawLine(x-10, y-30, x+500, y-30);
             dc->DrawLine(x-10, y-30, x-10, y);
@@ -796,12 +824,12 @@ bool MyPrintout::OnPrintPage(int page)
             dc->DrawText(m_frame->leftPanel->m_nameColumn2, x+50, y-30);
             dc->DrawText(m_frame->leftPanel->m_nameColumn3, x+200, y-30);
             dc->DrawText(m_frame->leftPanel->m_nameColumn4, x+300, y-30);
-            dc->DrawText(m_frame->leftPanel->m_nameColumn5, x+400, y-30);
-            for (unsigned int j = 0; j < m_numPages; ++j)
-            {
+            dc->DrawText(m_frame->leftPanel->m_nameColumn5, x+400, y-30);   */
+            //for (unsigned int j = 0; j < m_numPages; ++j)
+            //{
             
-            for (unsigned int i = 0; i < m_frame->leftPanel->vector.size(); ++i)
-            {
+           // for (unsigned int i = 0; i < m_frame->leftPanel->vector.size(); ++i)
+           // {
             //    wxString word = m_frame->leftPanel->listCtrl->GetItemText(0,1);
         //word.Remove( word.Len()-1, 1 );
         //dc->GetTextExtent(word, &wordWidth, &wordHeight);
@@ -811,7 +839,7 @@ bool MyPrintout::OnPrintPage(int page)
             {
                 ++page;
             }*/
-                dc->DrawLine(x-10, y+30*i, x+500, y+30*i);
+            /*  dc->DrawLine(x-10, y+30*i, x+500, y+30*i);
                 dc->DrawLine(x-10, y+30*i, x-10, y+30*(i+1));
                 dc->DrawLine(x+40, y+30*i, x+40, y+30*(i+1));
                 dc->DrawLine(x+190, y+30*i, x+190, y+30*(i+1));
@@ -826,11 +854,12 @@ bool MyPrintout::OnPrintPage(int page)
             }
             dc->DrawLine(x-10, y+30*(m_frame->leftPanel->vector.size()), x+500, y+30*(m_frame->leftPanel->vector.size()));
             dc->DrawText(m_frame->leftPanel->m_nameColumn6, x + 400, y + 30*(m_frame->leftPanel->vector.size()+1));
-            dc->DrawText(m_frame->leftPanel->listCtrltotal->GetItemText(0, 0), x + 400, y + 30*(m_frame->leftPanel->vector.size()+2));
+            dc->DrawText(m_frame->leftPanel->listCtrltotal->GetItemText(0, 0), x + 400, y + 30*(m_frame->leftPanel->vector.size()+2));*/
 
-            }
+            //}
+        
             
-        }
+        //}
 
         return true;
     }
