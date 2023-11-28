@@ -10,6 +10,7 @@
 #include <wx/print.h>
 #include <wx/cmndata.h>
 #include <wx/datetime.h>
+#include <wx/textfile.h>
 #include "res.h"
 #endif
 
@@ -115,6 +116,7 @@ private:
     void OnPrint(wxCommandEvent& event);
     void OnPageSetup(wxCommandEvent& event);
     void OnPreview(wxCommandEvent& event);
+    void OnSave(wxCommandEvent& event);
 
 };
 
@@ -135,11 +137,12 @@ public:
     virtual bool HasPage(int pageNum) override;
     virtual void GetPageInfo(int *minPage, int *maxPage, int *selPageFrom, int *selPageTo) override;
 
+    int m_numPages;
+
 private:
     MyFrame* m_frame;
     wxPrintDialogData* m_printDlgData;
-    int m_numPages;
-
+    
 };
 
 
@@ -254,6 +257,10 @@ MyFrame::MyFrame()
                      "Create a new list");
     menuFile->AppendSeparator();*/
 
+    menuFile->Append(wxID_SAVE);
+    
+    menuFile->AppendSeparator();
+    
     menuFile->Append(wxID_PRINT);
     
     menuFile->AppendSeparator();
@@ -291,6 +298,7 @@ MyFrame::MyFrame()
     Bind(wxEVT_MENU, &MyFrame::OnPrint, this, wxID_PRINT);
     Bind(wxEVT_MENU, &MyFrame::OnPageSetup, this, wxID_PAGE_SETUP);
     Bind(wxEVT_MENU, &MyFrame::OnPreview, this, wxID_PREVIEW);
+    Bind(wxEVT_MENU, &MyFrame::OnSave, this, wxID_SAVE);
 }
 
 
@@ -312,17 +320,20 @@ void MyFrame::OnPrint(wxCommandEvent& event)
     printDialogData.EnableSelection(true);
     printDialogData.EnablePageNumbers(true);
     //printDialogData.EnableCurrentPage(true);
+    wxPrinter printer(&printDialogData);
+    MyPrintout printout(this, &printer.GetPrintDialogData(), "My printout");
+    
     printDialogData.SetMinPage(1);
-    printDialogData.SetMaxPage(2);
+    printDialogData.SetMaxPage(printout.m_numPages);
     printDialogData.SetFromPage(1);
-    printDialogData.SetToPage(2);
+    printDialogData.SetToPage(printout.m_numPages);
     printDialogData.SetAllPages(true);
 
-    wxPrinter printer(&printDialogData);
+    
 
     // wxPrinter copies printDialogData internally, so we have to pass this
     // instance in order to evaluate users inputs.
-    MyPrintout printout(this, &printer.GetPrintDialogData(), "My printout");
+    
 
     SetStatusText(""); // clear previous "cancelled" message, if any
 
@@ -374,7 +385,6 @@ frame->Show(true);
 }
 
 
-
 void MyFrame::OnPageSetup(wxCommandEvent& event)
 {
 
@@ -387,6 +397,50 @@ void MyFrame::OnPageSetup(wxCommandEvent& event)
     (*g_pageSetupData) = pageSetupDialog.GetPageSetupDialogData();
 
 }
+
+
+void MyFrame::OnSave(wxCommandEvent& event)
+{
+    /*wxFile file;
+    wxString filename = "file" + wxDateTime::Today().FormatISODate() + ".txt";
+    if (!file.Open(filename, wxFile::write))
+    {
+        wxLogError("There was a problem saving.");
+    }*/
+    /*int nLines = textCtrl->GetNumberOfLines();
+    
+
+    for ( int nLine = 0; ok && nLine < nLines; nLine++ )
+    {
+    ok = file.Write(textCtrl->GetLineText(nLine) +
+    wxTextFile::GetEOL());
+    }*/
+
+    /*bool ok = true;
+
+    ok = file.Write(leftPanel->m_nameColumn6 +
+    wxTextFile::GetEOL());
+
+    if(ok == false)
+    {
+        wxLogError("There was a problem saving.");
+    }
+
+    file.Close();*/
+    
+    wxTextFile file;
+    if (file.Open(filename))
+    {
+        size_t i;
+        for (i = 0; i < file.GetLineCount(); i++)
+        {
+            file[i] = text + file[i];
+        }
+        file.Write(filename);
+    }
+    
+}
+
 
 void LeftPanel::Adding (wxCommandEvent& event)
 {
@@ -620,9 +674,7 @@ bool MyPrintout::OnPrintPage(int page)
 
         long x = 100, y= 100;
 
-        wxString today = wxDateTime::Today().Format();
-        today.erase(8, 9);
-        dc->DrawText("List of products " + today, x-10, y-60);    
+        dc->DrawText("List of products " + wxDateTime::Today().FormatISODate(), x-10, y-60);    
         
         if(!m_frame->leftPanel->vector.empty())
         {
