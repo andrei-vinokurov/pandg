@@ -427,16 +427,47 @@ void MyFrame::OnSave(wxCommandEvent& event)
     }
 
     file.Close();*/
-    
+
+    if(!leftPanel->vector.empty())
+
+    {
+
+    wxString filename = "file_" + wxDateTime::Today().FormatISODate() + ".txt";
+
+
     wxTextFile file;
+    file.Create(filename);
+
+
     if (file.Open(filename))
     {
-        size_t i;
+        /*size_t i;
         for (i = 0; i < file.GetLineCount(); i++)
         {
             file[i] = text + file[i];
-        }
-        file.Write(filename);
+        }*/
+        //file.Write(filename);
+    char fill1 = '=';
+    char fill2 = ' ';
+    wxString fill3 = "|";
+
+    file.AddLine("List of products " + wxDateTime::Today().FormatISODate());
+    file.AddLine ("");
+    file.AddLine (wxString(fill1, 80));
+    file.AddLine(fill3 + leftPanel->m_nameColumn1 + fill3 + leftPanel->m_nameColumn2 + fill3 + 
+    leftPanel->m_nameColumn3 + fill3 + leftPanel->m_nameColumn4 + fill3 + leftPanel->m_nameColumn5 + fill3);
+    file.AddLine (wxString(fill1, 80));
+
+    file.Write(wxTextFileType_None);
+
+    }
+
+    }
+
+    else
+    {
+        wxMessageBox("The list of product is empty.",
+                 "Empty list", wxOK | wxICON_INFORMATION);
     }
     
 }
