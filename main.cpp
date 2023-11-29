@@ -401,33 +401,7 @@ void MyFrame::OnPageSetup(wxCommandEvent& event)
 
 void MyFrame::OnSave(wxCommandEvent& event)
 {
-    /*wxFile file;
-    wxString filename = "file" + wxDateTime::Today().FormatISODate() + ".txt";
-    if (!file.Open(filename, wxFile::write))
-    {
-        wxLogError("There was a problem saving.");
-    }*/
-    /*int nLines = textCtrl->GetNumberOfLines();
     
-
-    for ( int nLine = 0; ok && nLine < nLines; nLine++ )
-    {
-    ok = file.Write(textCtrl->GetLineText(nLine) +
-    wxTextFile::GetEOL());
-    }*/
-
-    /*bool ok = true;
-
-    ok = file.Write(leftPanel->m_nameColumn6 +
-    wxTextFile::GetEOL());
-
-    if(ok == false)
-    {
-        wxLogError("There was a problem saving.");
-    }
-
-    file.Close();*/
-
     if(!leftPanel->vector.empty())
 
     {
@@ -435,28 +409,93 @@ void MyFrame::OnSave(wxCommandEvent& event)
     wxString filename = "file_" + wxDateTime::Today().FormatISODate() + ".txt";
 
 
-    wxTextFile file;
-    file.Create(filename);
-
-
-    if (file.Open(filename))
+    wxTextFile file (filename);
+    if (!file.Exists())
     {
-        /*size_t i;
-        for (i = 0; i < file.GetLineCount(); i++)
-        {
-            file[i] = text + file[i];
-        }*/
-        //file.Write(filename);
-    char fill1 = '=';
+        file.Create();
+    }
+
+    if (file.Open())
+    {
+    file.Clear();
+    char fill1 = '-';
     char fill2 = ' ';
     wxString fill3 = "|";
+
+    wxString nameColumn1 = leftPanel->m_nameColumn1;
+    if (nameColumn1.size()>3)
+    {
+        nameColumn1.Remove(3);
+    }
+    wxString nameColumn2 = leftPanel->m_nameColumn2;
+    if (nameColumn2.size()>25)
+    {
+        nameColumn2.Remove(25);
+    }
+    wxString nameColumn3 = leftPanel->m_nameColumn3;
+    if (nameColumn3.size()>12)
+    {
+        nameColumn3.Remove(12);
+    }
+    wxString nameColumn4 = leftPanel->m_nameColumn4;
+    if (nameColumn4.size()>10)
+    {
+        nameColumn4.Remove(10);
+    }
+    wxString nameColumn5 = leftPanel->m_nameColumn5;
+    if (nameColumn5.size()>24)
+    {
+        nameColumn5.Remove(24);
+    }
 
     file.AddLine("List of products " + wxDateTime::Today().FormatISODate());
     file.AddLine ("");
     file.AddLine (wxString(fill1, 80));
-    file.AddLine(fill3 + leftPanel->m_nameColumn1 + fill3 + leftPanel->m_nameColumn2 + fill3 + 
-    leftPanel->m_nameColumn3 + fill3 + leftPanel->m_nameColumn4 + fill3 + leftPanel->m_nameColumn5 + fill3);
+    file.AddLine(fill3 + nameColumn1 + wxString(fill2, (3 - nameColumn1.size())) + fill3 + 
+    nameColumn2 + wxString(fill2, (25 - nameColumn2.size())) + fill3 + 
+    nameColumn3 + wxString(fill2, (12 - nameColumn3.size())) + fill3 + 
+    nameColumn4 + wxString(fill2, (10 - nameColumn4.size())) + fill3 + 
+    nameColumn5 + wxString(fill2, (24 - nameColumn5.size())) + fill3);
     file.AddLine (wxString(fill1, 80));
+
+    for (unsigned int i = 0; i < leftPanel->vector.size(); ++i)
+    {
+        wxString nameItem1 = leftPanel->listCtrl->GetItemText(i, 0);
+        if (nameItem1.size()>3)
+        {
+            nameItem1.Remove(3);
+        }
+        wxString nameItem2 = leftPanel->listCtrl->GetItemText(i, 1);
+        if (nameItem2.size()>25)
+        {
+            nameItem2.Remove(25);
+        }
+        wxString nameItem3 = leftPanel->listCtrl->GetItemText(i, 2);
+        if (nameItem3.size()>12)
+        {
+            nameItem3.Remove(12);
+        }
+        wxString nameItem4 = leftPanel->listCtrl->GetItemText(i, 3);
+        if (nameItem4.size()>10)
+        {
+            nameItem4.Remove(10);
+        }
+        wxString nameItem5 = leftPanel->listCtrl->GetItemText(i, 4);
+        if (nameItem5.size()>24)
+        {
+            nameItem5.Remove(24);
+        }
+        file.AddLine(fill3 + nameItem1 + wxString(fill2, (3 - nameItem1.size())) + fill3 + 
+        nameItem2 + wxString(fill2, (25 - nameItem2.size())) + fill3 + 
+        nameItem3 + wxString(fill2, (12 - nameItem3.size())) + fill3 + 
+        nameItem4 + wxString(fill2, (10 - nameItem4.size())) + fill3 + 
+        nameItem5 + wxString(fill2, (24 - nameItem5.size())) + fill3);
+        file.AddLine (wxString(fill1, 80));        
+    }
+
+    file.AddLine (wxString(fill2, 55) + leftPanel->m_nameColumn6);
+    file.AddLine (wxString(fill2, 55) + leftPanel->listCtrltotal->GetItemText(0, 0));
+
 
     file.Write(wxTextFileType_None);
 
