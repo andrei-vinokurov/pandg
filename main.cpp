@@ -227,45 +227,28 @@ MyFrame::MyFrame()
     : wxFrame(nullptr, wxID_ANY, "ListOP")
 {
     SetIcon (wxICON(icon_frame));
-
+    SetSize(730, 425);
     wxMenu* menuFile = new wxMenu;
-
-    menuFile->Append(wxID_SAVE);
-    
+    menuFile->Append(wxID_SAVE); 
     menuFile->AppendSeparator();
-    
     menuFile->Append(wxID_PRINT);
-    
     menuFile->AppendSeparator();
-
     menuFile->Append(wxID_PAGE_SETUP, "&PageSetup");
-    
     menuFile->AppendSeparator();
-
     menuFile->Append(wxID_PREVIEW, "&Preview");
-    
     menuFile->AppendSeparator();
-
     menuFile->Append(wxID_EXIT);
- 
     wxMenu* menuHelp = new wxMenu;
     menuHelp->Append(wxID_ABOUT);
-
     wxMenuBar* menuBar = new wxMenuBar;
     menuBar->Append(menuFile, "&File");
     menuBar->Append(menuHelp, "&Help");
-
     SetMenuBar( menuBar );
-
     wxPanel* panel = new wxPanel(this, ID_Panel, wxPoint (0,0), wxSize (0,0));
-
     m_myPanel = new MyPanel(panel);
-
     m_dialogInFrame = new myDialog(panel);
-
     CreateStatusBar();
     SetStatusText("Welcome to ListOP!");
-
     Bind(wxEVT_MENU, &MyFrame::OnAbout, this, wxID_ABOUT);
     Bind(wxEVT_MENU, &MyFrame::OnExit, this, wxID_EXIT);
     Bind(wxEVT_MENU, &MyFrame::OnPrint, this, wxID_PRINT);
