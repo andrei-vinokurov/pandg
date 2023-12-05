@@ -174,9 +174,6 @@ MyPanel::MyPanel(wxPanel* parent) : wxPanel (parent, wxID_ANY, wxDefaultPosition
     wxButton* button1 = new wxButton (this, wxID_ANY, "Add", wxPoint (50,130), wxSize (100, 20));
     wxButton* button2 = new wxButton (this, wxID_ANY, "Edit/Delete", wxPoint (50,170), wxSize (100, 20)); 
 
-
-    wxButton* button9 = new wxButton (m_childPanel1, wxID_ANY, "Clear all", wxPoint (0,0), wxSize (70, 20));
-
     wxStaticText* m_text = new wxStaticText(m_childPanel2, wxID_ANY, "Select list number", wxPoint (20, 20), wxSize (160, 20), wxALIGN_CENTRE_HORIZONTAL);  
 
     wxButton* button3 = new wxButton (m_childPanel2, wxID_ANY, "Edit", wxPoint (20, 90), wxSize (50, 20)); 
@@ -184,6 +181,8 @@ MyPanel::MyPanel(wxPanel* parent) : wxPanel (parent, wxID_ANY, wxDefaultPosition
     wxButton* button5 = new wxButton (m_childPanel2, wxID_ANY, "Cancel", wxPoint (130, 90), wxSize (50, 20));
     
     m_spinCtrl = new wxSpinCtrl(m_childPanel2, wxID_ANY, wxEmptyString, wxPoint (70, 50), wxSize (60, 20), wxSP_ARROW_KEYS | wxALIGN_CENTRE_HORIZONTAL, 1);
+
+    wxButton* button6 = new wxButton (m_childPanel1, wxID_ANY, "Clear all", wxPoint (0,0), wxSize (70, 20));
 
     m_listCtrl = new wxListCtrl (this, wxID_ANY, wxPoint (200,0), wxSize (510, 300), wxLC_REPORT);
     m_listCtrl->AppendColumn (m_nameColumn1, wxLIST_FORMAT_CENTER, 30);
@@ -201,8 +200,8 @@ MyPanel::MyPanel(wxPanel* parent) : wxPanel (parent, wxID_ANY, wxDefaultPosition
     button3->Bind(wxEVT_BUTTON, &MyPanel::Editing, this);
     button4->Bind(wxEVT_BUTTON, &MyPanel::DeletingOne, this);
     button5->Bind(wxEVT_BUTTON, &MyPanel::Canceling, this);
-
-    button9->Bind(wxEVT_BUTTON, &MyPanel::Deleting, this);
+    button6->Bind(wxEVT_BUTTON, &MyPanel::Deleting, this);
+    
 }
 
 myDialog::myDialog(wxPanel* parent) : wxDialog(parent, wxID_ANY, "Product editing", wxDefaultPosition, wxSize (205, 200), wxDEFAULT_DIALOG_STYLE | wxSTAY_ON_TOP)
