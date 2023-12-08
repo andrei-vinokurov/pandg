@@ -28,10 +28,10 @@ public:
 };
 
 
-class myDialog : public wxDialog
+class MyDialog : public wxDialog
 {
 public:
-    myDialog(wxPanel* parent);
+    MyDialog(wxPanel* parent);
     void OkDialog(wxCommandEvent& event);
     void CancelDialog(wxCommandEvent& event);
     float* m_valueDialog1 = 0;
@@ -94,7 +94,7 @@ class MyFrame : public wxFrame
 public:
     MyFrame();
     MyPanel* m_myPanel;
-    myDialog* m_dialogInFrame;
+    MyDialog* m_dialogInFrame;
 
 private:
     void OnExit(wxCommandEvent& event);
@@ -204,7 +204,7 @@ MyPanel::MyPanel(wxPanel* parent) : wxPanel (parent, wxID_ANY, wxDefaultPosition
     
 }
 
-myDialog::myDialog(wxPanel* parent) : wxDialog(parent, wxID_ANY, "Product editing", wxDefaultPosition, wxSize (205, 200), wxDEFAULT_DIALOG_STYLE | wxSTAY_ON_TOP)
+MyDialog::MyDialog(wxPanel* parent) : wxDialog(parent, wxID_ANY, "Product editing", wxDefaultPosition, wxSize (205, 200), wxDEFAULT_DIALOG_STYLE | wxSTAY_ON_TOP)
 {
     m_parentPanelForDialog = parent;
     wxStaticText* m_textDialog1 = new wxStaticText(this, wxID_ANY, "Enter a name of product", wxPoint (0,0), wxSize (200, 20));
@@ -217,8 +217,8 @@ myDialog::myDialog(wxPanel* parent) : wxDialog(parent, wxID_ANY, "Product editin
     m_textctrlDialog3 = new wxTextCtrl(this, wxID_ANY, "", wxPoint (0,100), wxSize (200, 20), 0L, valDialog2);
     wxButton* m_buttonOk = new wxButton (this, wxID_ANY, "Ok", wxPoint (35, 135), wxSize (50, 20));  
     wxButton* m_buttonCancel = new wxButton (this, wxID_ANY, "Cancel", wxPoint (115, 135), wxSize (50, 20)); 
-    m_buttonOk->Bind(wxEVT_BUTTON, &myDialog::OkDialog, this);
-    m_buttonCancel->Bind(wxEVT_BUTTON, &myDialog::CancelDialog, this);
+    m_buttonOk->Bind(wxEVT_BUTTON, &MyDialog::OkDialog, this);
+    m_buttonCancel->Bind(wxEVT_BUTTON, &MyDialog::CancelDialog, this);
 
 }
 
@@ -245,7 +245,7 @@ MyFrame::MyFrame()
     SetMenuBar( menuBar );
     wxPanel* panel = new wxPanel(this, ID_Panel, wxPoint (0,0), wxSize (0,0));
     m_myPanel = new MyPanel(panel);
-    m_dialogInFrame = new myDialog(panel);
+    m_dialogInFrame = new MyDialog(panel);
     CreateStatusBar();
     SetStatusText("Welcome to ListOP!");
     Bind(wxEVT_MENU, &MyFrame::OnAbout, this, wxID_ABOUT);
@@ -522,7 +522,7 @@ void MyPanel::Editing(wxCommandEvent& event)
     {
 
             MyFrame* frameFromDialog = (MyFrame*) m_parentPanel->GetParent();
-            myDialog* dlg = frameFromDialog->m_dialogInFrame;
+            MyDialog* dlg = frameFromDialog->m_dialogInFrame;
             dlg->m_textctrlDialog1->SetValue(m_listCtrl->GetItemText((m_spinCtrl->GetValue()-1), 1));
             dlg->m_textctrlDialog2->SetValue(m_listCtrl->GetItemText((m_spinCtrl->GetValue()-1), 2));
             dlg->m_textctrlDialog3->SetValue(m_listCtrl->GetItemText((m_spinCtrl->GetValue()-1), 3));
@@ -585,7 +585,7 @@ void MyPanel::Deleting (wxCommandEvent& event)
     m_listCtrlTotal->SetItemText (0, "0");
 }
 
-void myDialog::OkDialog(wxCommandEvent& event)
+void MyDialog::OkDialog(wxCommandEvent& event)
 {
     MyFrame* frameFromFunc = (MyFrame*)m_parentPanelForDialog->GetParent();
 
@@ -627,7 +627,7 @@ void myDialog::OkDialog(wxCommandEvent& event)
     }
 }
 
-void myDialog::CancelDialog(wxCommandEvent& event)
+void MyDialog::CancelDialog(wxCommandEvent& event)
 {
     Close();
 }
