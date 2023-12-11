@@ -27,13 +27,13 @@ bool MyPrintout::OnPrintPage(int page)
 
         dc->DrawIcon(wxICON(icon_frame), 5, 5);
 
-        dc->DrawText(wxString::Format("PAGE %d", page), 50, 0);
+        dc->DrawText(wxString::Format(wxT("Страница %d"), page), 50, 0);
 
-        dc->DrawText("This program was developed by Andrey Vinokurov", 200, 0);
+        dc->DrawText(wxT("Эту программу разработал Андрей Винокуров"), 200, 0);
 
         long x = 100, y= 100;
 
-        dc->DrawText("List of products " + wxDateTime::Today().FormatISODate(), x-10, y-60);    
+        dc->DrawText(wxT("Список покупок ") + wxDateTime::Today().FormatISODate(), x-10, y-60);    
         
         if(!m_frame->m_myPanel->m_vector.empty())
         {

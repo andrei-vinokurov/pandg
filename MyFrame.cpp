@@ -2,31 +2,31 @@
 #include "MyPrintout.h"
 
 
-MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, "ListOP")
+MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, wxT("Список покупок"))
 {
     SetIcon (wxICON(icon_frame));
     SetSize(730, 425);
     wxMenu* menuFile = new wxMenu;
-    menuFile->Append(wxID_SAVE); 
+    menuFile->Append(wxID_SAVE, wxT("Сохранить")); 
     menuFile->AppendSeparator();
-    menuFile->Append(wxID_PRINT);
+    menuFile->Append(wxID_PRINT, wxT("Печать"));
     menuFile->AppendSeparator();
-    menuFile->Append(wxID_PAGE_SETUP, "&PageSetup");
+    menuFile->Append(wxID_PAGE_SETUP, wxT("Параметры страницы"));
     menuFile->AppendSeparator();
-    menuFile->Append(wxID_PREVIEW, "&Preview");
+    menuFile->Append(wxID_PREVIEW, wxT("Предварительный просмотр"));
     menuFile->AppendSeparator();
-    menuFile->Append(wxID_EXIT);
+    menuFile->Append(wxID_EXIT, wxT("Выход"));
     wxMenu* menuHelp = new wxMenu;
-    menuHelp->Append(wxID_ABOUT);
+    menuHelp->Append(wxID_ABOUT, wxT("О программе"));
     wxMenuBar* menuBar = new wxMenuBar;
-    menuBar->Append(menuFile, "&File Мороз");
-    menuBar->Append(menuHelp, "&Help");
+    menuBar->Append(menuFile, wxT("Файл"));
+    menuBar->Append(menuHelp, wxT("Помощь"));
     SetMenuBar( menuBar );
     wxPanel* panel = new wxPanel(this, ID_Panel, wxPoint (0,0), wxSize (0,0));
     m_myPanel = new MyPanel(panel);
     m_dialogInFrame = new MyDialog(panel);
     CreateStatusBar();
-    SetStatusText("Welcome to ListOP!");
+    SetStatusText(wxT("Добро пожаловать в Список покупок!"));
     Bind(wxEVT_MENU, &MyFrame::OnAbout, this, wxID_ABOUT);
     Bind(wxEVT_MENU, &MyFrame::OnExit, this, wxID_EXIT);
     Bind(wxEVT_MENU, &MyFrame::OnPrint, this, wxID_PRINT);
@@ -44,8 +44,8 @@ void MyFrame::OnExit(wxCommandEvent& event)
 
 void MyFrame::OnAbout(wxCommandEvent& event)
 {
-    wxMessageBox("This program helps to make a shopping list.",
-                 "About Program", wxOK | wxICON_INFORMATION);
+    wxMessageBox(wxT("Эта программа помогает составить список покупок и расчитать примерный бюджет. После составления списка вы можете его сохранить и/или распечатать."),
+                 wxT("О программе"), wxOK | wxICON_INFORMATION);
 }
 
 
@@ -68,11 +68,11 @@ void MyFrame::OnPrint(wxCommandEvent& event)
     {
         if (wxPrinter::GetLastError() == wxPRINTER_ERROR)
         {
-            wxLogError("There was a problem printing. Perhaps your current printer is not set correctly?");
+            wxLogError(wxT("Проблемы печати. Проверьте, вы правильно настроили принтер?"));
         }
         else
         {
-            wxLogStatus("You canceled printing");
+            wxLogStatus(wxT("Вы отменили печать"));
         }
     }
     else
@@ -98,11 +98,11 @@ void MyFrame::OnPreview(wxCommandEvent& event)
     if (!preview->IsOk())
     {
         delete preview;
-        wxLogError("There was a problem previewing.\nPerhaps your current printer is not set correctly?");
+        wxLogError(wxT("Проблемы печати. Проверьте, вы правильно настроили принтер?"));
         return;
     }
 
-    wxPreviewFrame *frame = new wxPreviewFrame(preview, this, "Demo Print Preview");
+    wxPreviewFrame *frame = new wxPreviewFrame(preview, this, wxT("Предварительный просмотр печати"));
 
 frame->Centre(wxBOTH);
 frame->Initialize();
@@ -130,7 +130,7 @@ void MyFrame::OnSave(wxCommandEvent& event)
 
     {
 
-    wxString filename = "file_" + wxDateTime::Today().FormatISODate() + ".txt";
+    wxString filename = wxT("Список_покупок_") + wxDateTime::Today().FormatISODate() + ".txt";
 
 
     wxTextFile file (filename);
@@ -172,7 +172,7 @@ void MyFrame::OnSave(wxCommandEvent& event)
         nameColumn5.Remove(24);
     }
 
-    file.AddLine("List of products " + wxDateTime::Today().FormatISODate());
+    file.AddLine(wxT("Список_покупок_") + wxDateTime::Today().FormatISODate());
     file.AddLine ("");
     file.AddLine (wxString(fill1, 80));
     file.AddLine(fill3 + nameColumn1 + wxString(fill2, (3 - nameColumn1.size())) + fill3 + 
@@ -229,8 +229,8 @@ void MyFrame::OnSave(wxCommandEvent& event)
 
     else
     {
-        wxMessageBox("The list of product is empty.",
-                 "Empty list", wxOK | wxICON_INFORMATION);
+        wxMessageBox(wxT("Список покупок пуст"),
+                 wxT("Пустой список"), wxOK | wxICON_INFORMATION);
     }
     
 }

@@ -25,12 +25,12 @@ public:
     void Deleting(wxCommandEvent& event);
     static unsigned int TotalCount();
     float TotalCost();
-    wxString m_nameColumn1 = "#";
-    wxString m_nameColumn2 = "name of product";
-    wxString m_nameColumn3 = "price";
-    wxString m_nameColumn4 = "quantity";
-    wxString m_nameColumn5 = "total";
-    wxString m_nameColumn6 = "total cost";
+    wxString m_nameColumn1 = wxT("№");
+    wxString m_nameColumn2 = wxT("Наименование товара");
+    wxString m_nameColumn3 = wxT("Цена");
+    wxString m_nameColumn4 = wxT("Количество");
+    wxString m_nameColumn5 = wxT("Стоимость");
+    wxString m_nameColumn6 = wxT("ИТОГО");
    
 private:
     wxPanel* m_childPanel1;
