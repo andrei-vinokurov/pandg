@@ -9,31 +9,31 @@ unsigned int MyPanel::s_countDelete = 0;
 MyPanel::MyPanel(wxPanel* parent) : wxPanel (parent, wxID_ANY, wxDefaultPosition, wxSize (710, 340), wxBORDER_SUNKEN)
 {
     m_parentPanel = parent;
-    wxPanel* m_childPanel1 = new wxPanel (this, ID_Panel1, wxPoint (200,310), wxSize (70, 20));
+    wxPanel* m_childPanel1 = new wxPanel (this, ID_Panel1, wxPoint (200,310), wxSize (90, 20));
     wxPanel* m_childPanel2 = new wxPanel (this, ID_Panel2, wxPoint (0,190), wxSize (200, 150));
     m_childPanel2->Show(false);    
    
-    wxStaticText* text1 = new wxStaticText(this, wxID_ANY, "Enter a name of product", wxPoint (0,0), wxSize (200, 20));
+    wxStaticText* text1 = new wxStaticText(this, wxID_ANY, wxT("Введите название товара"), wxPoint (0,0), wxSize (200, 20));
     m_textCtrl1 = new wxTextCtrl(this, wxID_ANY, "", wxPoint (0,20), wxSize (200, 20));
-    wxStaticText* text2 = new wxStaticText(this, wxID_ANY, "Enter a price", wxPoint (0,40), wxSize (200, 20));
+    wxStaticText* text2 = new wxStaticText(this, wxID_ANY, wxT("Укажите цену"), wxPoint (0,40), wxSize (200, 20));
     wxFloatingPointValidator<float> val1(2, m_value1, wxNUM_VAL_ZERO_AS_BLANK);
 
     m_textCtrl2 = new wxTextCtrl(this, wxID_ANY, "", wxPoint (0,60), wxSize (200, 20), 0L, val1);
-    wxStaticText* text3 = new wxStaticText(this, wxID_ANY, "Enter a quantity", wxPoint (0,80), wxSize (200, 20));
+    wxStaticText* text3 = new wxStaticText(this, wxID_ANY, wxT("Укажите количество"), wxPoint (0,80), wxSize (200, 20));
     wxFloatingPointValidator<float> val2(3, m_value2, wxNUM_VAL_ZERO_AS_BLANK);
     m_textCtrl3 = new wxTextCtrl(this, wxID_ANY, "", wxPoint (0,100), wxSize (200, 20), 0L, val2);
-    wxButton* button1 = new wxButton (this, wxID_ANY, "Add", wxPoint (50,130), wxSize (100, 20));
-    wxButton* button2 = new wxButton (this, wxID_ANY, "Edit/Delete", wxPoint (50,170), wxSize (100, 20)); 
+    wxButton* button1 = new wxButton (this, wxID_ANY, wxT("Добавить"), wxPoint (25,130), wxSize (150, 20));
+    wxButton* button2 = new wxButton (this, wxID_ANY, wxT("Редактировать/Удалить"), wxPoint (25,170), wxSize (150, 20)); 
 
-    wxStaticText* m_text = new wxStaticText(m_childPanel2, wxID_ANY, "Select list number", wxPoint (20, 20), wxSize (160, 20), wxALIGN_CENTRE_HORIZONTAL);  
+    wxStaticText* m_text = new wxStaticText(m_childPanel2, wxID_ANY, wxT("Выберите номер в списке"), wxPoint (20, 20), wxSize (160, 20), wxALIGN_CENTRE_HORIZONTAL);  
 
-    wxButton* button3 = new wxButton (m_childPanel2, wxID_ANY, "Edit", wxPoint (20, 90), wxSize (50, 20)); 
-    wxButton* button4 = new wxButton (m_childPanel2, wxID_ANY, "Delete", wxPoint (75, 90), wxSize (50, 20)); 
-    wxButton* button5 = new wxButton (m_childPanel2, wxID_ANY, "Cancel", wxPoint (130, 90), wxSize (50, 20));
+    wxButton* button3 = new wxButton (m_childPanel2, wxID_ANY, wxT("Редактировать"), wxPoint (5, 90), wxSize (90, 20)); 
+    wxButton* button4 = new wxButton (m_childPanel2, wxID_ANY, wxT("Удалить"), wxPoint (105, 90), wxSize (90, 20)); 
+    wxButton* button5 = new wxButton (m_childPanel2, wxID_ANY, wxT("Отмена"), wxPoint (50, 120), wxSize (90, 20));
     
     m_spinCtrl = new wxSpinCtrl(m_childPanel2, wxID_ANY, wxEmptyString, wxPoint (70, 50), wxSize (60, 20), wxSP_ARROW_KEYS | wxALIGN_CENTRE_HORIZONTAL, 1);
 
-    wxButton* button6 = new wxButton (m_childPanel1, wxID_ANY, "Clear all", wxPoint (0,0), wxSize (70, 20));
+    wxButton* button6 = new wxButton (m_childPanel1, wxID_ANY, wxT("Удалить все"), wxPoint (0,0), wxSize (90, 20));
 
     m_listCtrl = new wxListCtrl (this, wxID_ANY, wxPoint (200,0), wxSize (510, 300), wxLC_REPORT);
     m_listCtrl->AppendColumn (m_nameColumn1, wxLIST_FORMAT_CENTER, 30);
@@ -79,8 +79,8 @@ void MyPanel::Adding (wxCommandEvent& event)
     }
     else
     {
-        wxMessageBox("The name of product, price or quantity is not correct.",
-                 "Error", wxOK | wxICON_INFORMATION);
+        wxMessageBox(wxT("Наименование товара, цена или количество указаны некорректно"),
+                 wxT("Ошибка"), wxOK | wxICON_INFORMATION);
     }
 }
 
@@ -106,8 +106,8 @@ void MyPanel::EditDelete(wxCommandEvent& event)
 {
     if(m_vector.empty())
     {
-        wxMessageBox("The list of product is empty.",
-                 "Empty list", wxOK | wxICON_INFORMATION);
+        wxMessageBox(wxT("Список покупок пуст"),
+                 wxT("Пустой список"), wxOK | wxICON_INFORMATION);
     }
     else
     {
@@ -134,8 +134,8 @@ void MyPanel::Editing(wxCommandEvent& event)
     }
     else
     {
-            wxMessageBox("This name is not in the list.",
-                 "Name missing", wxOK | wxICON_INFORMATION);
+            wxMessageBox(wxT("В списке нет такого порядкового номера"),
+                 wxT("Товар не найден"), wxOK | wxICON_INFORMATION);
             
     }
     FindWindow(ID_Panel2)->Show(false);
@@ -160,8 +160,8 @@ void MyPanel::DeletingOne(wxCommandEvent& event)
     }
     else
     {
-            wxMessageBox("This name is not in the list.",
-                 "Name missing", wxOK | wxICON_INFORMATION);
+            wxMessageBox(wxT("В списке нет такого порядкового номера"),
+                 wxT("Товар не найден"), wxOK | wxICON_INFORMATION);
             
     }
     FindWindow(ID_Panel2)->Show(false);

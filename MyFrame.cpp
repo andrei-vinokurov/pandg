@@ -19,7 +19,7 @@ MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, "ListOP")
     wxMenu* menuHelp = new wxMenu;
     menuHelp->Append(wxID_ABOUT);
     wxMenuBar* menuBar = new wxMenuBar;
-    menuBar->Append(menuFile, "&File");
+    menuBar->Append(menuFile, "&File Мороз");
     menuBar->Append(menuHelp, "&Help");
     SetMenuBar( menuBar );
     wxPanel* panel = new wxPanel(this, ID_Panel, wxPoint (0,0), wxSize (0,0));
