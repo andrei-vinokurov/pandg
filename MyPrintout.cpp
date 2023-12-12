@@ -1,11 +1,12 @@
 #include "MyPrintout.h"
 
 
+//определяет количество страниц, исходя из 30 наименований на 1 страницу
 void MyPrintout::OnPreparePrinting()
 {
-    wxDC* dc = GetDC();
+    wxDC* dc = GetDC(); //получаем контекст устройства
     
-    if(!m_frame->m_myPanel->m_vector.empty())
+    if(!m_frame->m_myPanel->m_vector.empty()) //проверяем есть ли в списке товары
     {
         m_numPages = (m_frame->m_myPanel->m_vector.size() - 1) / 30 + 1;
     }
@@ -17,26 +18,29 @@ void MyPrintout::OnPreparePrinting()
 }
 
 
+//отрисовывает изображение страницы печати и предварительного просмотра
 bool MyPrintout::OnPrintPage(int page)
 {
-    wxDC* dc = GetDC();
+    wxDC* dc = GetDC(); //получаем контекст устройства
     if (dc)
     {
 
-        MapScreenSizeToPage();
+        MapScreenSizeToPage(); //устанавлявает масштаб контекста устройства с началом координат в верхним левом углу страницы
 
-        dc->DrawIcon(wxICON(icon_frame), 5, 5);
+        dc->DrawIcon(wxICON(icon_frame), 5, 5); //вывод логотипа на страницу
 
-        dc->DrawText(wxString::Format(wxT("Страница %d"), page), 50, 0);
+        dc->DrawText(wxString::Format(wxT("Страница %d"), page), 50, 0); //номер страницы
 
-        dc->DrawText(wxT("Эту программу разработал Андрей Винокуров"), 200, 0);
+        dc->DrawText(wxT("Эту программу разработал Андрей Винокуров"), 200, 0); //автор
 
-        long x = 100, y= 100;
+        long x = 100, y= 100; //переменные для задания координат
 
-        dc->DrawText(wxT("Список покупок ") + wxDateTime::Today().FormatISODate(), x-10, y-60);    
+        dc->DrawText(wxT("Список покупок ") + wxDateTime::Today().FormatISODate(), x-10, y-60); //вывод заголовка   
         
-        if(!m_frame->m_myPanel->m_vector.empty())
+        //отрисовка
+        if(!m_frame->m_myPanel->m_vector.empty()) //проверяем есть ли в списке товары
         {
+            //шапка таблицы
             dc->DrawLine(x-10, y-30, x+500, y-30);
             dc->DrawLine(x-10, y-30, x-10, y);
             dc->DrawLine(x+40, y-30, x+40, y);
@@ -50,7 +54,8 @@ bool MyPrintout::OnPrintPage(int page)
             dc->DrawText(m_frame->m_myPanel->m_nameColumn4, x+300, y-30);
             dc->DrawText(m_frame->m_myPanel->m_nameColumn5, x+400, y-30); 
 
-            if (page == m_numPages)
+            //содержимое таблицы
+            if (page == m_numPages) //если страница является последней
             {
                 for (unsigned int j = 30*(page-1); j < m_frame->m_myPanel->m_vector.size(); ++j)
                 {
@@ -72,7 +77,7 @@ bool MyPrintout::OnPrintPage(int page)
                 dc->DrawText(m_frame->m_myPanel->m_nameColumn6, x + 400, y + 30*(m_frame->m_myPanel->m_vector.size()+1 - 30*(page-1)));
                 dc->DrawText(m_frame->m_myPanel->m_listCtrlTotal->GetItemText(0, 0), x + 400, y + 30*(m_frame->m_myPanel->m_vector.size()+2 - 30*(page-1)));
             }
-            else
+            else //если страница не является последней
             {   
                 for (unsigned int j = 30*(page-1); j < 30*page; ++j)
                 {
@@ -102,6 +107,7 @@ bool MyPrintout::OnPrintPage(int page)
 }
 
 
+//определяет мин. и макс. количество страниц
 void MyPrintout::GetPageInfo(int *minPage, int *maxPage, int *selPageFrom, int *selPageTo)
 {
     *minPage = 1;
@@ -112,6 +118,7 @@ void MyPrintout::GetPageInfo(int *minPage, int *maxPage, int *selPageFrom, int *
 }
 
 
+//определяет есть ли страница в документе
 bool MyPrintout::HasPage(int pageNum)
 {
     return (pageNum >= 1 && pageNum <= m_numPages);
