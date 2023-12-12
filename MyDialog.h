@@ -1,6 +1,7 @@
 #ifndef MYDIALOG_H
 #define MYDIALOG_H
 
+//подключение заголовочных файлов wxWidgets, используемых в этом файле (h и cpp)
 #include <wx/dialog.h>
 #include <wx/stattext.h>
 #include <wx/textctrl.h>
@@ -10,6 +11,7 @@
 #include <wx/msgdlg.h>
 
 
+//Класс MyDialog для редактирования ранее введенных пользователем данных
 class MyDialog : public wxDialog
 {
 public:

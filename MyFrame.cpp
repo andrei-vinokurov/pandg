@@ -2,12 +2,13 @@
 #include "MyPrintout.h"
 
 
+//конструктор основного окна
 MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, wxT("Список покупок"))
 {
-    SetIcon (wxICON(icon_frame));
+    SetIcon (wxICON(icon_frame));  //подключаем логотип через файл res.h
     SetSize(730, 425);
-    wxMenu* menuFile = new wxMenu;
-    menuFile->Append(wxID_SAVE, wxT("Сохранить")); 
+    wxMenu* menuFile = new wxMenu; //меню "Файл"
+    menuFile->Append(wxID_SAVE, wxT("Сохранить"), wxT("Сохранить созданный список покупок")); 
     menuFile->AppendSeparator();
     menuFile->Append(wxID_PRINT, wxT("Печать"));
     menuFile->AppendSeparator();
@@ -15,18 +16,19 @@ MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, wxT("Список покупок
     menuFile->AppendSeparator();
     menuFile->Append(wxID_PREVIEW, wxT("Предварительный просмотр"));
     menuFile->AppendSeparator();
-    menuFile->Append(wxID_EXIT, wxT("Выход"));
-    wxMenu* menuHelp = new wxMenu;
-    menuHelp->Append(wxID_ABOUT, wxT("О программе"));
-    wxMenuBar* menuBar = new wxMenuBar;
-    menuBar->Append(menuFile, wxT("Файл"));
-    menuBar->Append(menuHelp, wxT("Помощь"));
-    SetMenuBar( menuBar );
+    menuFile->Append(wxID_EXIT, wxT("Выход"), wxT("Выйти из программы"));
+    wxMenu* menuHelp = new wxMenu; //меню "Помощь"
+    menuHelp->Append(wxID_ABOUT, wxT("О программе"), wxT("Краткая информация о работе программы"));
+    wxMenuBar* menuBar = new wxMenuBar; //создание панели Меню
+    menuBar->Append(menuFile, wxT("Файл")); //добавление пункта в панель Меню
+    menuBar->Append(menuHelp, wxT("Помощь")); //добавление пункта в панель Меню
+    SetMenuBar( menuBar ); //установка панели Меню в окно
     wxPanel* panel = new wxPanel(this, ID_Panel, wxPoint (0,0), wxSize (0,0));
     m_myPanel = new MyPanel(panel);
     m_dialogInFrame = new MyDialog(panel);
-    CreateStatusBar();
-    SetStatusText(wxT("Добро пожаловать в Список покупок!"));
+    CreateStatusBar(); //информационная панель
+    SetStatusText(wxT("Добро пожаловать в Список покупок!")); //сообщение в информационной панели
+    //привязка функций к пунктам меню
     Bind(wxEVT_MENU, &MyFrame::OnAbout, this, wxID_ABOUT);
     Bind(wxEVT_MENU, &MyFrame::OnExit, this, wxID_EXIT);
     Bind(wxEVT_MENU, &MyFrame::OnPrint, this, wxID_PRINT);
@@ -36,12 +38,14 @@ MyFrame::MyFrame() : wxFrame(nullptr, wxID_ANY, wxT("Список покупок
 }
 
 
+//выход
 void MyFrame::OnExit(wxCommandEvent& event)
 {
     Close(true);
 }
  
 
+//о программе
 void MyFrame::OnAbout(wxCommandEvent& event)
 {
     wxMessageBox(wxT("Эта программа помогает составить список покупок и расчитать примерный бюджет. После составления списка вы можете его сохранить и/или распечатать."),
@@ -49,6 +53,7 @@ void MyFrame::OnAbout(wxCommandEvent& event)
 }
 
 
+//печать
 void MyFrame::OnPrint(wxCommandEvent& event)
 {
     wxPrintDialogData printDialogData(m_printData);
@@ -62,7 +67,7 @@ void MyFrame::OnPrint(wxCommandEvent& event)
     printDialogData.SetToPage(printout.m_numPages);
     printDialogData.SetAllPages(true);
 
-    SetStatusText(""); // clear previous "cancelled" message, if any
+    SetStatusText("");
 
     if (!printer.Print(this, &printout, true))
     {
@@ -82,16 +87,13 @@ void MyFrame::OnPrint(wxCommandEvent& event)
 }
 
 
+//предварительный просмотр
 void MyFrame::OnPreview(wxCommandEvent& event)
 {
 
-// Pass two printout objects: for preview, and possible printing.
     wxPrintDialogData printDialogData(m_printData);
 
     wxPrinter printer(&printDialogData);
-
-    // wxPrinter copies printDialogData internally, so we have to pass this
-    // instance in order to evaluate users inputs.
 
     wxPrintPreview *preview =
         new wxPrintPreview(new MyPrintout(this, &printDialogData), new MyPrintout(this, &printDialogData), &printDialogData);
@@ -110,6 +112,7 @@ frame->Show(true);
 }
 
 
+//параметры страницы
 void MyFrame::OnPageSetup(wxCommandEvent& event)
 {
 
@@ -123,6 +126,8 @@ void MyFrame::OnPageSetup(wxCommandEvent& event)
 }
 
 
+//сохранить. Функция сохраняет в txt файл, присваивая имя, включающее текущую дату. 
+//Заполнение разделителей с помощью '-' и "|" позволяет создать подобие таблицы
 void MyFrame::OnSave(wxCommandEvent& event)
 {
     
@@ -130,22 +135,22 @@ void MyFrame::OnSave(wxCommandEvent& event)
 
     {
 
-    wxString filename = wxT("Список_покупок_") + wxDateTime::Today().FormatISODate() + ".txt";
+    wxString filename = wxT("Список_покупок_") + wxDateTime::Today().FormatISODate() + ".txt";  //имя файла
 
-
-    wxTextFile file (filename);
-    if (!file.Exists())
+    wxTextFile file (filename); //создание файла с именем, созданым в предыдущей строке
+    if (!file.Exists())  //если файл не существует
     {
-        file.Create();
+        file.Create(); //создать файл
     }
 
-    if (file.Open())
+    if (file.Open()) //открыть файл
     {
-    file.Clear();
+    file.Clear(); //очистить файл (актуально, если он был заполнен ранее)
     char fill1 = '-';
     char fill2 = ' ';
     wxString fill3 = "|";
 
+    //определение соответствия названий колонок, заранее определенному количеству символов
     wxString nameColumn1 = m_myPanel->m_nameColumn1;
     if (nameColumn1.size()>3)
     {
@@ -172,8 +177,10 @@ void MyFrame::OnSave(wxCommandEvent& event)
         nameColumn5.Remove(24);
     }
 
-    file.AddLine(wxT("Список_покупок_") + wxDateTime::Today().FormatISODate());
-    file.AddLine ("");
+    file.AddLine(wxT("Список_покупок_") + wxDateTime::Today().FormatISODate()); //название таблицы (соответствует названию файла)
+    file.AddLine (""); //пустая строка
+
+    //шапка таблицы
     file.AddLine (wxString(fill1, 80));
     file.AddLine(fill3 + nameColumn1 + wxString(fill2, (3 - nameColumn1.size())) + fill3 + 
     nameColumn2 + wxString(fill2, (25 - nameColumn2.size())) + fill3 + 
@@ -182,8 +189,10 @@ void MyFrame::OnSave(wxCommandEvent& event)
     nameColumn5 + wxString(fill2, (24 - nameColumn5.size())) + fill3);
     file.AddLine (wxString(fill1, 80));
 
+    //заполнение таблицы списком покупок
     for (unsigned int i = 0; i < m_myPanel->m_vector.size(); ++i)
     {
+        //определение соответствия содержания элементов, заранее определенному количеству символов
         wxString nameItem1 = m_myPanel->m_listCtrl->GetItemText(i, 0);
         if (nameItem1.size()>3)
         {
@@ -209,6 +218,7 @@ void MyFrame::OnSave(wxCommandEvent& event)
         {
             nameItem5.Remove(24);
         }
+        //заполнение строчки
         file.AddLine(fill3 + nameItem1 + wxString(fill2, (3 - nameItem1.size())) + fill3 + 
         nameItem2 + wxString(fill2, (25 - nameItem2.size())) + fill3 + 
         nameItem3 + wxString(fill2, (12 - nameItem3.size())) + fill3 + 
@@ -217,11 +227,12 @@ void MyFrame::OnSave(wxCommandEvent& event)
         file.AddLine (wxString(fill1, 80));        
     }
 
+    //значение ИТОГО
     file.AddLine (wxString(fill2, 55) + m_myPanel->m_nameColumn6);
     file.AddLine (wxString(fill2, 55) + m_myPanel->m_listCtrlTotal->GetItemText(0, 0));
 
 
-    file.Write(wxTextFileType_None);
+    file.Write(wxTextFileType_None); //записать файл
 
     }
 

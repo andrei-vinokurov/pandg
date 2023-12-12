@@ -1,23 +1,27 @@
-#include <wx/app.h>
-#include <wx/intl.h>
+#include <wx/app.h> //файл wx для приложения
+#include <wx/intl.h> //файл wx для wxLocale (для кириллицы)
+//подключение заголовочных файлов приложения
 #include "MyFrame.h"
 #include "MyPanel.h"
 #include "MyDialog.h"
 #include "MyPrintout.h"
 
 
+//объявление класса приложения
 class MyApp : public wxApp
 {
 public:
-    wxLocale m_locale;
-    virtual bool OnInit() override;
-    virtual int OnExit() override;
+    wxLocale m_locale; // член данных для подключения кириллицы
+    virtual bool OnInit() override; // функция инициализации приложения
+    virtual int OnExit() override; // функция выхода из приложения
 };
 
 
-wxIMPLEMENT_APP(MyApp);
+//макрос, заменяющий int main()
+wxIMPLEMENT_APP(MyApp);  
 
 
+//инициализация приложения
 bool MyApp::OnInit()
 {
     m_locale.Init(wxLANGUAGE_RUSSIAN);
@@ -27,6 +31,7 @@ bool MyApp::OnInit()
 }
 
 
+//выход из приложения
 int MyApp::OnExit()
 {
     return wxApp::OnExit();

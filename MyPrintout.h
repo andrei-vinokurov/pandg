@@ -1,6 +1,7 @@
 #ifndef MYPRINTOUT_H
 #define MYPRINTOUT_H
 
+//подключение заголовочных файлов wxWidgets и приложения, используемых в этом файле (h и cpp)
 #include <wx/print.h>
 #include <wx/printdlg.h>
 #include <wx/cmndata.h>
