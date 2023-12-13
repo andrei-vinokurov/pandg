@@ -33,7 +33,7 @@ bool MyPrintout::OnPrintPage(int page)
 
         dc->DrawText(wxT("Эту программу разработал Андрей Винокуров"), 200, 0); //автор
 
-        long x = 100, y= 100; //переменные для задания координат
+        long x = 60, y= 100; //переменные для задания координат
 
         dc->DrawText(wxT("Список покупок ") + wxDateTime::Today().FormatISODate(), x-10, y-60); //вывод заголовка   
         
@@ -41,18 +41,18 @@ bool MyPrintout::OnPrintPage(int page)
         if(!m_frame->m_myPanel->m_vector.empty()) //проверяем есть ли в списке товары
         {
             //шапка таблицы
-            dc->DrawLine(x-10, y-30, x+500, y-30);
+            dc->DrawLine(x-10, y-30, x+620, y-30);
             dc->DrawLine(x-10, y-30, x-10, y);
             dc->DrawLine(x+40, y-30, x+40, y);
-            dc->DrawLine(x+190, y-30, x+190, y);
             dc->DrawLine(x+290, y-30, x+290, y);
             dc->DrawLine(x+390, y-30, x+390, y);
-            dc->DrawLine(x+500, y-30, x+500, y);
+            dc->DrawLine(x+490, y-30, x+490, y);
+            dc->DrawLine(x+620, y-30, x+620, y);
             dc->DrawText(m_frame->m_myPanel->m_nameColumn1, x, y-30);
             dc->DrawText(m_frame->m_myPanel->m_nameColumn2, x+50, y-30);
-            dc->DrawText(m_frame->m_myPanel->m_nameColumn3, x+200, y-30);
-            dc->DrawText(m_frame->m_myPanel->m_nameColumn4, x+300, y-30);
-            dc->DrawText(m_frame->m_myPanel->m_nameColumn5, x+400, y-30); 
+            dc->DrawText(m_frame->m_myPanel->m_nameColumn3, x+300, y-30);
+            dc->DrawText(m_frame->m_myPanel->m_nameColumn4, x+400, y-30);
+            dc->DrawText(m_frame->m_myPanel->m_nameColumn5, x+500, y-30); 
 
             //содержимое таблицы
             if (page == m_numPages) //если страница является последней
@@ -60,42 +60,42 @@ bool MyPrintout::OnPrintPage(int page)
                 for (unsigned int j = 30*(page-1); j < m_frame->m_myPanel->m_vector.size(); ++j)
                 {
                     unsigned int i = j - 30*(page-1);
-                    dc->DrawLine(x-10, y+30*i, x+500, y+30*i);
+                    dc->DrawLine(x-10, y+30*i, x+620, y+30*i);
                     dc->DrawLine(x-10, y+30*i, x-10, y+30*(i+1));
                     dc->DrawLine(x+40, y+30*i, x+40, y+30*(i+1));
-                    dc->DrawLine(x+190, y+30*i, x+190, y+30*(i+1));
                     dc->DrawLine(x+290, y+30*i, x+290, y+30*(i+1));
                     dc->DrawLine(x+390, y+30*i, x+390, y+30*(i+1));
-                    dc->DrawLine(x+500, y+30*i, x+500, y+30*(i+1));
+                    dc->DrawLine(x+490, y+30*i, x+490, y+30*(i+1));
+                    dc->DrawLine(x+620, y+30*i, x+620, y+30*(i+1));
                     dc->DrawText(m_frame->m_myPanel->m_listCtrl->GetItemText(j, 0), x, y+30*i);
                     dc->DrawText(m_frame->m_myPanel->m_listCtrl->GetItemText(j, 1), x+50, y+30*i);
-                    dc->DrawText(m_frame->m_myPanel->m_listCtrl->GetItemText(j, 2), x+200, y+30*i);
-                    dc->DrawText(m_frame->m_myPanel->m_listCtrl->GetItemText(j, 3), x+300, y+30*i);
-                    dc->DrawText(m_frame->m_myPanel->m_listCtrl->GetItemText(j, 4), x+400, y+30*i);
+                    dc->DrawText(m_frame->m_myPanel->m_listCtrl->GetItemText(j, 2), x+300, y+30*i);
+                    dc->DrawText(m_frame->m_myPanel->m_listCtrl->GetItemText(j, 3), x+400, y+30*i);
+                    dc->DrawText(m_frame->m_myPanel->m_listCtrl->GetItemText(j, 4), x+500, y+30*i);
                 }
-                dc->DrawLine(x-10, y+30*(m_frame->m_myPanel->m_vector.size() - 30*(page-1)), x+500, y+30*(m_frame->m_myPanel->m_vector.size() - 30*(page-1)));
-                dc->DrawText(m_frame->m_myPanel->m_nameColumn6, x + 400, y + 30*(m_frame->m_myPanel->m_vector.size()+1 - 30*(page-1)));
-                dc->DrawText(m_frame->m_myPanel->m_listCtrlTotal->GetItemText(0, 0), x + 400, y + 30*(m_frame->m_myPanel->m_vector.size()+2 - 30*(page-1)));
+                dc->DrawLine(x-10, y+30*(m_frame->m_myPanel->m_vector.size() - 30*(page-1)), x+620, y+30*(m_frame->m_myPanel->m_vector.size() - 30*(page-1)));
+                dc->DrawText(m_frame->m_myPanel->m_nameColumn6, x + 500, y + 30*(m_frame->m_myPanel->m_vector.size()+1 - 30*(page-1)));
+                dc->DrawText(m_frame->m_myPanel->m_listCtrlTotal->GetItemText(0, 0), x + 500, y + 30*(m_frame->m_myPanel->m_vector.size()+2 - 30*(page-1)));
             }
             else //если страница не является последней
             {   
                 for (unsigned int j = 30*(page-1); j < 30*page; ++j)
                 {
                     unsigned int i = j - 30*(page-1);
-                    dc->DrawLine(x-10, y+30*i, x+500, y+30*i);
+                    dc->DrawLine(x-10, y+30*i, x+620, y+30*i);
                     dc->DrawLine(x-10, y+30*i, x-10, y+30*(i+1));
                     dc->DrawLine(x+40, y+30*i, x+40, y+30*(i+1));
-                    dc->DrawLine(x+190, y+30*i, x+190, y+30*(i+1));
                     dc->DrawLine(x+290, y+30*i, x+290, y+30*(i+1));
                     dc->DrawLine(x+390, y+30*i, x+390, y+30*(i+1));
-                    dc->DrawLine(x+500, y+30*i, x+500, y+30*(i+1));
+                    dc->DrawLine(x+490, y+30*i, x+490, y+30*(i+1));
+                    dc->DrawLine(x+620, y+30*i, x+620, y+30*(i+1));
                     dc->DrawText(m_frame->m_myPanel->m_listCtrl->GetItemText(j, 0), x, y+30*i);
                     dc->DrawText(m_frame->m_myPanel->m_listCtrl->GetItemText(j, 1), x+50, y+30*i);
-                    dc->DrawText(m_frame->m_myPanel->m_listCtrl->GetItemText(j, 2), x+200, y+30*i);
-                    dc->DrawText(m_frame->m_myPanel->m_listCtrl->GetItemText(j, 3), x+300, y+30*i);
-                    dc->DrawText(m_frame->m_myPanel->m_listCtrl->GetItemText(j, 4), x+400, y+30*i);
+                    dc->DrawText(m_frame->m_myPanel->m_listCtrl->GetItemText(j, 2), x+300, y+30*i);
+                    dc->DrawText(m_frame->m_myPanel->m_listCtrl->GetItemText(j, 3), x+400, y+30*i);
+                    dc->DrawText(m_frame->m_myPanel->m_listCtrl->GetItemText(j, 4), x+500, y+30*i);
                 }
-                dc->DrawLine(x-10, 1000, x+500, 1000);
+                dc->DrawLine(x-10, 1000, x+620, 1000);
             }
         }
         return true;
